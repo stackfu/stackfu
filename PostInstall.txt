@@ -1,0 +1,10 @@
+
+--==-- StackFu - Server Deployment Engine --==--
+
+To get started:
+	stackfu
+	
+To get more help:
+	stackfu help
+	
+And now: Deploy it, grasshopper!

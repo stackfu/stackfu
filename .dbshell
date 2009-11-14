@@ -1,0 +1,6 @@
+use stackfu
+db.collections()
+help
+show collections
+db.users.find()
+quit

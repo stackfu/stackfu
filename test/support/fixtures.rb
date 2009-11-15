@@ -1,5 +1,5 @@
 module Fixtures
-  ApiUrlPrefix = "https://api.stackfu.com"
+  ApiUrlPrefix = StackFu::API.gsub(/api/, "flipper:abc123@api")
   
   def with_server_list(kind=nil)
     kind = kind ? "_#{kind}" : ""
@@ -8,7 +8,22 @@ module Fixtures
   
   def with_server_add(kind=nil)
     kind = kind ? "_#{kind}" : ""
-    FakeWeb.register_uri(:post, "#{ApiUrlPrefix}/servers.json", :response => fixture("server_add_#{kind}"))
+    FakeWeb.register_uri(:post, "#{ApiUrlPrefix}/servers.json", :response => fixture("server_add#{kind}"))
+  end
+
+  def with_server_delete(kind=nil)
+    kind = kind ? "_#{kind}" : ""
+    FakeWeb.register_uri(:delete, "#{ApiUrlPrefix}/servers/4afe06b9e1054e1e00000002.json", :response => fixture("server_add#{kind}"))
+  end
+
+  def with_users(kind=nil)
+    kind = kind ? "_#{kind}" : ""
+    FakeWeb.register_uri(:get, "#{ApiUrlPrefix}/users.json", :response => fixture("users#{kind}"))
+  end
+
+  def with_users_update(kind=nil)
+    kind = kind ? "_#{kind}" : ""
+    FakeWeb.register_uri(:post, "#{ApiUrlPrefix}/users.json", :response => fixture("users_update#{kind}"))
   end
 
   private

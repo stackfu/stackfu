@@ -29,44 +29,97 @@ class Test::Unit::TestCase
   include Fixtures
 
   def command(cmd, settings_present=true)
+    cmd ||= ""
     App.expects(:settings?).returns(settings_present)
-    App.new(*cmd.split(" ")).start
+    if settings_present
+      App.any_instance.expects(:load_config).returns({ :login => "flipper", :token => "abc123" })
+    end
+    App.new(cmd.split(" ")).start
   end
 
   def setup
     @orig_stdout = $stdout
     $stdout = StringIO.new
-    $questions = {}
-    $agreements = []
-    $disagreements = []
+    $actions = []
+    $asked = []
   end
   
   def when_asked(what, options)
-    $questions[what] = options[:answer]
+    $actions << { :type => "ask", :action => [what, options[:answer]] }
   end
   
   def agree_with(what)
-    $agreements << what
+    $actions << { :type => "agree", :action => what }
   end
   
   def disagree_of(what)
-    $disagreements << what
+    $actions << { :type => "disagree", :action => what }
   end
   
   def teardown
-   $stdout = @orig_stdout
+    $stdout = @orig_stdout
+    asked = $asked.map { |s| "  - #{s}" }.join("\n")
+    unless $actions.empty?
+      questions = $actions.map do |q| 
+        info = q[:type] == "ask" ? q[:action].first : q[:action]
+        "  - #{q[:type]} #{info}" 
+      end.join("\n")
+      fail "Expected questions not asked:\n#{questions}\nQuestions responded:\n#{asked}\n"
+    end
+  end
+end
+
+class Array
+  def delete_first(value=nil)
+    result = nil
+    self.each_index do |i|
+      if block_given? and yield(self[i])
+        result = self.delete_at(i)
+        break
+      end 
+      if value and self[i] == value
+        result = self.delete_at(i) 
+        break 
+      end
+    end
+    
+    return result unless result and result.empty?
   end
 end
 
 module Kernel
   def ask(question, answer_type = String, &details)
-    $questions.delete(question) or raise "Unexpected question: #{question}"
+    action = $actions.first
+    if action and action[:type] == "ask" and action[:action].first == question
+      $asked << "responded to ask #{action[:action].first} with #{action[:action].last}"
+      result = $actions.shift[:action].last
+      # d "#{question} => #{result}"
+      return result
+    end
+    
+    if action
+      fail "Expected to #{action[:type]} #{action[:action].first.inspect} but asked #{question.inspect}"
+    else
+      fail "Unexpected ask #{question.inspect}"
+    end
   end
   
   def agree(yes_or_no_question, character = nil)
-    return true if $agreements.include?(yes_or_no_question)
-    return false if $disagreements.include?(yes_or_no_question)
-    raise "Unexpected agreement: #{yes_or_no_question}"
+    action = $actions.first
+    if action and action[:action] == yes_or_no_question
+      if action[:type] == "agree" or action[:type] == "disagree"
+        $asked << "#{action[:type]}d to #{action[:action]}"
+        result = $actions.shift[:type] == "agree"
+        # d "#{action[:type]} #{yes_or_no_question} => #{result}"
+        return result
+      end
+    end
+    
+    if action
+      fail "Expected to #{action[:type]} #{action[:action].inspect} but asked to agree with #{yes_or_no_question.inspect}"
+    else
+      fail "Unexpected agreement #{yes_or_no_question.inspect}"
+    end
   end
 end
 

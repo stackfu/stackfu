@@ -28,6 +28,20 @@ class TestCommand < Test::Unit::TestCase
     cmd.options.should == { :mode => "FAILSAFE" }
   end
   
+  should "be valid if only a default subcommand exists" do
+    SampleCmd.new.should be_valid
+  end
+  
+  should "allow named parameters" do
+    class NewCmd < Command
+      subcommand :move, :required_parameters => [:provider, :server_name]
+    end
+
+    lambda { 
+      cmd = NewCmd.new(["move"]) 
+    }.should raise_error(Exceptions::InvalidCommand, /requires 2 parameters/)
+  end
+  
   should "allow aliases" do
     class Cmd < Command
       alias_subcommand :list => :default

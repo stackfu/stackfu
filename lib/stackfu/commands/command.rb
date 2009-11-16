@@ -23,11 +23,19 @@ class Command
       def kls.subcommand_options
         @subcommand_options || {}
       end
+      
+      def kls.error_messages(spec)
+        (@error_messages ||= {}).merge!(spec)
+      end
+      
+      def kls.error_for(type)
+        (@error_messages ||= {})[type]
+      end
     end  
   end
   
   def command
-    self.class.name.underscore.gsub /_command/, ""
+    self.class.name.demodulize.underscore.gsub /_command/, ""
   end
       
   def initialize(args=[])
@@ -37,6 +45,11 @@ class Command
   end
     
   def run
+    unless self.respond_to?(subcommand)
+      error = self.class.error_for(:missing_subcommand)
+      error ||= "Command #{command} doesn't have a subcommand \"#{subcommand}\". Try \"stackfu #{command} help\" for more information."
+      raise Exceptions::InvalidCommand, error % [subcommand]
+    end
     send subcommand, parameters, options
   end
   
@@ -51,7 +64,9 @@ class Command
     
     if (req = rules[:required_parameters])
       if parameters.size < req.size
-        @errors << "The command #{command.to_s.foreground(:yellow)} #{subcommand.to_s.foreground(:yellow)} requires #{req.size} parameters.\nUsage: stackfu #{command} #{subcommand} #{req.to_params}" 
+        error = self.class.error_for(:missing_params)
+        error ||= "The command #{command.to_s.foreground(:yellow)} #{subcommand.to_s.foreground(:yellow)} requires #{req.size} parameters.\nUsage: stackfu #{command} #{subcommand} #{req.to_params}" 
+        @errors << error
       end
     end
     

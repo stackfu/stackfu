@@ -50,4 +50,34 @@ class TestCommand < Test::Unit::TestCase
     cmd = Cmd.new(["list"])
     cmd.subcommand.should == :default
   end
+  
+  should "throw a specific exception when subcommand doesn't exist" do
+    class ListCommand < Command
+    end
+    
+    lambda {
+      ListCommand.new(["find"]).run
+    }.should raise_error(Exceptions::InvalidCommand, /Command list doesn't have a subcommand "find". Try "stackfu list help" for more information./)
+  end
+  
+  should "allow the error message for inexistent subcommand to be customized" do
+    class ExampleCommand < Command
+      error_messages :missing_subcommand => "There's no such thing as %s"
+    end
+
+    lambda {
+      ExampleCommand.new(["test"]).run
+    }.should raise_error(Exceptions::InvalidCommand, /There's no such thing as test/)
+  end
+  
+  should "allow the error message for missing params to be customized" do
+    class ExampleCommand < Command
+      subcommand :test, :required_parameters => [:sex, :age]
+      error_messages :missing_params => "You have to provide sex and age, dude!"
+    end
+
+    lambda {
+      ExampleCommand.new(["test"]).run
+    }.should raise_error(Exceptions::InvalidCommand, /You have to provide sex and age, dude!/)
+  end
 end

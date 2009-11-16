@@ -8,7 +8,7 @@ class TestServerCommand < Test::Unit::TestCase
   should "indicate user have no servers" do
     with_server_list "empty"
     command "server list"
-    stdout.should == "You have no servers under your account. Try adding some with 'server add' command.\n"
+    stdout.should =~ /You have no servers under your account. Try adding some with 'server add' command.\n/
   end
   
   context "add command" do

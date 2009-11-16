@@ -3,6 +3,7 @@ require 'activeresource'
 class ServerCommand < Command
   alias_subcommand :list => :default
   subcommand :add, :required_parameters => [:provider, :server_name]
+  subcommand :delete, :required_parameters => [:server_name]
   
   class Server < ActiveResource::Base
     self.format = :json
@@ -19,7 +20,9 @@ class ServerCommand < Command
   end
   
   def default(parameters, options)
-    servers = Server.find(:all)
+    servers = spinner {
+      Server.find(:all)
+    }
     if servers.any?
       size = servers.size
       
@@ -41,9 +44,11 @@ class ServerCommand < Command
   end
   
   def delete(parameters, options)
-    # TODO more than one server
-    server = Server.find(:all).select { |s| s.hostname == parameters[0] }.first
-    server.destroy
+    # TODO more than one server with the same hostname
+    spinner {
+      server = Server.find(:all).select { |s| s.hostname == parameters[0] }.first
+      server.destroy
+    }
     
     puts "Server #{parameters[0]} deleted successfully"
   end
@@ -55,11 +60,14 @@ class ServerCommand < Command
       return unless add_credentials(user)
     end
     
-    puts "Parameters: #{parameters.inspect}"
-    server = Server.new(:provider_class => parameters[0], :hostname => parameters[1])
-    server.provider_class = parameters[0]
-    server.hostname = parameters[1]
-    if server.save
+    result = spinner {
+      server = Server.new(:provider_class => parameters[0], :hostname => parameters[1])
+      server.provider_class = parameters[0]
+      server.hostname = parameters[1]
+      server.save
+    }
+    
+    if result
       puts "Server #{parameters.second} added successfully"
     else
       puts "Server #{parameters.second} couldn't be added. Here's the error we've got: #{server.errors.full_messages.to_s}"

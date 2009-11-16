@@ -1,0 +1,81 @@
+--- 
+type: <%= stack_type %>
+name: "<%= name %>"
+description: "<%= description %>"
+tags: [add, some, tags]
+
+requirements: 
+#
+# Requirements are things you want to be checked before 
+# allowing this stack to be installed.
+#
+# This is an easy way to make sure all your components
+# dependencies are correctly installed.
+#
+# Types of dependencies:
+#
+#   file          - a given file exists
+#   symlink       - a given symlink exists
+#   directory     - a given directory exits
+#   process       - a process is runnning
+#   ruby_can_load - if ruby can load a given lib
+#   ruby_gem      - if a given ruby gem is installed
+# 
+# - type: folder
+#   data: "/var"
+#   error: "You need /var folder before installing"
+# - type: file
+#   data: "/etc/init.d/mysql"
+#   error: MySQL start script was not found
+#
+
+#
+# Each script will be executed on the target server.
+# It should be written assuming bash script language
+# and you can mix ruby code to preprocess.
+#
+# For instance, if you want to install a lot apt-get
+# packages, you could do something like:
+#
+# <%% ["a", "b", "c", "d"].each do |pkg| %>
+# apt-get install <%%= pkg %>
+# <%% end %>
+#
+# Example of script section contents:
+#
+# - description: Install Apache
+#   file: install_apache
+# 
+# - description: Install MySQL
+#   file: install_mysql
+# 
+# - description: Install PHP
+#   file: install_php
+#
+# This would search the script/ folder for
+# install_apache.sh.erb, isntall_mysql.sh.erb and
+# install_php.sh.erb
+#
+scripts: 
+<% scripts.each do |s| %>
+- description: <%= s.titleize %>
+  file: <%= s %>
+<% end %>
+
+validations: 
+#
+# As opposed to requirements, validations are things you 
+# want to be checked after the installation, to make sure
+# the installation occurred successfully.
+#
+# In case something wrong happens, you can inform the
+# user
+#
+# The validation types are the same as requirements.
+#
+# Example:
+#
+# - type: folder
+#   data: "/etc/apache2"
+#   error: Apache was not installed properly
+#

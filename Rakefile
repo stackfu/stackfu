@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'rake'  
 require 'rake/testtask'
+require 'metric_fu'
 
 Rake::TestTask.new(:test_new) do |test|
   test.libs << 'test'

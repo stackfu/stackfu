@@ -28,6 +28,7 @@ require "#{dir}/commands/command"
 require "#{dir}/commands/help_command"
 require "#{dir}/commands/server_command"
 require "#{dir}/commands/config_command"
+require "#{dir}/commands/generate_command"
 
 module Exceptions
   class InvalidCommand < StandardError; end
@@ -41,4 +42,30 @@ class Array
   def to_params 
     self.map { |item| item.to_s.upcase }.join(" ")
   end
+end
+
+def spinner(&code)
+  chars = %w{ | / - \\ }
+
+  result = nil
+  t = Thread.new { 
+    result = code.call
+  }
+  while t.alive?
+    print chars[0]
+    STDOUT.flush
+
+    sleep 0.1
+
+    print "\b"
+    STDOUT.flush
+
+    chars.push chars.shift
+  end
+
+  print ""
+  STDOUT.flush
+
+  t.join
+  result
 end

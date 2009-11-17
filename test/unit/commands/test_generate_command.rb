@@ -11,133 +11,98 @@ class TestGenerateCommand < Test::Unit::TestCase
   end
   
   context "command generate stack" do
+    ## Normal behavior
+    
     should "show the requirement parameter if none given" do
       command "generate stack"
       stdout.should =~ /STACK_NAME/
     end
     
-    ## Normal behavior
-    
-    should "generate the manifest and script folder when only stack name is given" do
-      prepare_stack
+    should "generate the stack file and the script folder even when no script is given" do
+      expect_create :dir => "test", :file => "stack.yml"
+      expect_create :dir => "test/script"
+      expect_create :dir => "test/config", :file => "01-controls.yml"
+      expect_create :dir => "test/config", :file => "02-requirements.yml"
+      expect_create :dir => "test/config", :file => "03-scripts.yml"
+      expect_create :dir => "test/config", :file => "04-validations.yml"
+
       command "generate stack test"
-      stdout.should =~ /Manifest/
-      stdout.should =~ /script/
     end
     
-    should "generate the manifest and scripts one scripts is passed" do
-      prepare_stack(:scripts => ["install_counterstrike_server"])
-      command "generate stack test install_counterstrike_server:script"
-      stdout.should =~ /Manifest/
-      stdout.should =~ /script/
-      stdout.should =~ /install_counterstrike_server.sh.erb/
+    should "generate proper tree with one scripts passed" do
+      expect_create :dir => "test", :file => "stack.yml"
+      expect_create :dir => "test/script", :file => "install_counter_strike_server.sh.erb"
+      expect_create :dir => "test/config", :file => "01-controls.yml"
+      expect_create :dir => "test/config", :file => "02-requirements.yml"
+      expect_create :dir => "test/config", :file => "03-scripts.yml", 
+        :contents => [/install_counter_strike_server/, /Install Counter Strike Server/]
+      expect_create :dir => "test/config", :file => "04-validations.yml"
+
+      command "generate stack test install_counter_strike_server:script"
     end
-    
-    should "generate the manifest with the controls" do
-      GenerateCommand.any_instance.expects(:create).with do |dir, file, contents|
-        dir == "test/scripts"
-      end
+
+    should "generate proper tree with scripts and controls" do
+      expect_create :dir => "test", :file => "stack.yml"
+      expect_create :dir => "test/script", :file => "install_counter_strike_server.sh.erb"
+      expect_create :dir => "test/script", :file => "show_me_the_money.sh.erb"
+      expect_create :dir => "test/config", :file => "01-controls.yml",
+        :contents => [
+          /name: clan_name/,     /label: Clan Name/,     /type: Textbox/,
+          /name: clan_password/, /label: Clan Password/, /type: Password/
+        ]
+      expect_create :dir => "test/config", :file => "02-requirements.yml"
+      expect_create :dir => "test/config", :file => "03-scripts.yml", 
+        :contents => [
+          /install_counter_strike_server/, /Install Counter Strike Server/,
+          /show_me_the_money/,             /Show Me The Money/
+        ]
+      expect_create :dir => "test/config", :file => "04-validations.yml"
       
-      GenerateCommand.any_instance.expects(:create).with do |dir, file, contents|
-        file == "install_counterstrike_server.sh.erb"
-      end
-      
-      GenerateCommand.any_instance.expects(:create).with do |dir, file, contents|
-        (dir == "test" && file == "Manifest.yml" && 
-        contents =~ /Clan Name/       &&
-        contents =~ /clan_name/       &&
-        contents =~ /Textbox/         &&
-        contents =~ /Clan Password/   &&
-        contents =~ /clan_password/   &&
-        contents =~ /Password/)
-      end
-      
-      command "generate stack test clan_name:textbox clan_password:password install_counterstrike_server:script"
+      command "generate stack test clan_name:textbox clan_password:password install_counter_strike_server:script show_me_the_money:script"
     end
     
     ## Error conditions
+    
+    should "raise an error message if one of the params is unknown" do
+      command "generate stack test abcdef"
+      stdout.should =~ /Don't know how to generate a stack with abcdef. Use 'stackfu help generate' for more information./
+    end
+
+    should "raise an error message if one of the params is of invalid type" do
+      command "generate stack test yogurt:food"
+      stdout.should =~ /Don't know how to generate a stack with food yogurt. Use 'stackfu help generate' for more information./
+    end
 
     should "raise a nice error when mkdir fails" do
-      prepare_stack(:creating_folder => IOError)
+      expect_create :dir => "test", :file => "stack.yml", :raise => [IOError, "Error description"]
       command "generate stack test"
       stdout.should =~ /There was an error creating your stack: Error description/
     end
 
-    should "raise a nice error when fails to create the manifest" do
-      prepare_stack(:creating_manifest => IOError)
-      command "generate stack test"
-      stdout.should =~ /There was an error creating your stack: Error description/
-    end
-    
     should "raise a nice error when mkdir fails because there is a file with same name" do
-      prepare_stack(:creating_folder => Errno::EEXIST)
+      expect_create :dir => "test", :file => "stack.yml", :raise => [Errno::EEXIST, "Error description"]
       command "generate stack test"
       stdout.should =~ /There was an error creating your stack: File exists - Error description/
     end
   end
   
   private
-  
-  def prepare_stack(opts={})
-    manifest_input = mock("Manifest input")
-    manifest_output = mock("Manifest output")
-    template = File.dirname(__FILE__) + '/../../../templates/Manifest.yml.erb'
-    
-    script_template = IO.readlines(File.dirname(__FILE__) + '/../../../templates/script.sh.erb')
-    contents = IO.readlines(template)
+  def expect_create(opts={})
+    expect = GenerateCommand.any_instance.expects(:create).with do |dir, file, contents|
+      dir_match = opts[:dir] ? dir == opts[:dir] : true  
+      file_match = opts[:file] ? file == opts[:file] : true
+      contents_match = opts[:contents] ?
+        opts[:contents].each do |c|
+          break true if contents =~ c
+          false
+        end : true
+      block_match = block_given? ? yield(dir, file, contents) : true
 
-    File.expects(:open).with { |v1, v2| v1 =~ /Manifest.yml.erb/ && v2 == "r" }.returns(manifest_input)
-    manifest_input.expects(:readlines).returns(contents)
-
-    File.expects(:open).with("test/Manifest.yml", "w").yields(manifest_output)
-    
-    output = contents.clone.join("")
-    output.gsub!("<%= stack_type %>", "stack")
-    output.gsub!("<%= name %>", "test")
-    output.gsub!("<%= description %>", "Enter a description for this stack here")
-    output.gsub!("<%%", "<%")
-    
-    if (exc = opts[:creating_manifest])
-      manifest_output.expects(:write).with do |s| 
-        s =~ /type: stack/
-        s =~ /name: "test"/
-        s =~ /description: "Enter a description for this stack here"/
-      end.raises(exc, "Error description")
-      
-      return
+      its_a_match = dir_match and file_match and contents_match and block_match
     end
     
-    manifest_output.expects(:write).with do |s| 
-      s =~ /type: stack/
-      s =~ /name: "test"/
-      s =~ /description: "Enter a description for this stack here"/
-    end
-  
-    if (exc = opts[:creating_folder])
-      FileUtils.expects(:mkdir_p).with("test/scripts").raises(exc, "Error description")
-      return
-    end
-
-    FileUtils.expects(:mkdir_p).with("test/scripts")
-
-    if (scripts = opts[:scripts])
-      scripts.each do |s|
-        FileUtils.expects(:mkdir_p).with("test/scripts")
-
-        script_input = mock("Script input stream")
-        
-        File.expects(:open).with { |v1, v2| v1 =~ /script.sh.erb/ && v2 == "r"}.returns(script_input)
-        script_input.expects(:readlines).returns(script_template)
-        
-        script_output = script_template.clone.join("")
-        script_output.gsub("<%= filename %>", "#{s}.sh.erb")
-        script_output.gsub("<%= description %>", "#{s.titleize}")
-        output.gsub!("<%%", "<%")
-        
-        script = mock("Script #{s}")
-        File.expects(:open).with("test/scripts/#{s}.sh.erb", "w").yields(script)
-        script.expects(:write).with { |v| v =~ /Installing -- #{s.titleize}/ }
-      end
+    if opts[:raise]
+      expect.raises(opts[:raise].first, opts[:raise].last)
     end
   end
 end

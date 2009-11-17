@@ -7,10 +7,12 @@ class GenerateCommand < Command
   error_messages :missing_subcommand => "You have to tell what you want to generate: a stack or a plugin."
   
   Types = { 
-    [:checkbox, :combobox, :password, :radio, :textbox] => :control
+    [:checkbox, :numericbox, :combobox, :password, :radio, :textbox] => :control
   }
 
   def type(t)
+    return :unknown unless t
+    
     ctrl = t.to_sym
     Types.each_pair do |key, value|
       ctrl = value if key.include?(ctrl)
@@ -21,39 +23,52 @@ class GenerateCommand < Command
   def stack(parameters, options)
     begin
       stack_name = parameters.shift
-      scripts = []
-      controls = []
+      items = {}
       while (p = parameters.shift)
         name, type = p.split(":")
         
         case type(type)
         when :script
-          scripts << [name, template("script.sh.erb", {
+          (items["scripts"]||=[]) << [name, template("script.sh.erb", {
             "filename" => name,
             "description" => name.titleize
           })]
           
         when :control
-          controls << [name, type]
+          (items["controls"]||=[]) << [name, type]
+          
+        else
+          raise Exceptions::InvalidParameter, 
+            "Don't know how to generate a stack with #{type ? "#{type} " : ""}#{name}. Use 'stackfu help generate' for more information."
           
         end
       end
       
-      manifest = template("Manifest.yml.erb", {
+      stack = template("stack.yml.erb", {
         "stack_type" => "stack", 
         "name" => stack_name,
-        "description" => "Enter a description for this stack here",
-        "scripts" => scripts.map { |s| s[0] },
-        "controls" => controls
+        "description" => "Enter a description for this stack here"
       })
-    
-      create("#{stack_name}", "Manifest.yml", manifest)
-      create("#{stack_name}/scripts")
-      scripts.each do |name, script|
-        create("#{stack_name}/scripts", "#{name}.sh.erb", scripts.assoc(name).last)
+      
+      create("#{stack_name}", "stack.yml", stack)
+
+      i = 1
+      %w[controls requirements scripts validations].each do |item|
+        template_name = "0#{i}-#{item}.yml"
+        create "#{stack_name}/config", template_name, template("#{template_name}.erb", {
+          item => items[item]
+        })
+        i += 1
       end
+    
+      items["scripts"].try(:each) do |item|
+        create("#{stack_name}/script", "#{item.first}.sh.erb", item.last)
+      end or create("#{stack_name}/script")
+      
+    rescue Exceptions::InvalidParameter
+      puts $!.message
     rescue IOError, Errno::EEXIST
-      puts "There was an error creating your stack: #{$!.message}"
+      puts "There was an error creating your stack: #{$!.message}"      
     end
   end
   

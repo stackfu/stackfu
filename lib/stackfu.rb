@@ -32,6 +32,7 @@ require "#{dir}/commands/generate_command"
 
 module Exceptions
   class InvalidCommand < StandardError; end
+  class InvalidParameter < StandardError; end
 end
 
 class Array

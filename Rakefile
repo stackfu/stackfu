@@ -1,7 +1,35 @@
 require 'rubygems'
 require 'rake'  
 require 'rake/testtask'
-require 'metric_fu'
+
+require 'echoe'  
+  
+Echoe.new('stackfu', '0.1.0') do |p|  
+  p.description     = "StackFu Backend"  
+  p.url             = "http://stackfu.com/cli"  
+  p.author          = "Felipe Coury"
+  p.email           = "felipe@stackfu.com"  
+  p.ignore_pattern  = ["tmp/*", "script/*"]  
+  p.runtime_dependencies = [
+    ['activesupport','>= 2.2.2'],
+    ['rainbow', '>=1.0.4'],
+    ['highline', '>=1.5.1'],
+    ['httparty', '>=0.4.5']
+  ]
+  p.install_message = <<EOS
+
+  --==-- StackFu - Server Deployment Engine --==--
+
+  To get started:
+  	stackfu
+
+  To get more help:
+  	stackfu help
+
+  And now: Deploy it, grasshopper!
+
+EOS
+end
 
 Rake::TestTask.new(:test_new) do |test|
   test.libs << 'test'
@@ -10,33 +38,21 @@ Rake::TestTask.new(:test_new) do |test|
   test.verbose = true
 end
 
-# remove_task :default
-# task :default  => :test
-
-# gem 'hoe', '>= 2.1.0'
-# 
-# require 'hoe'
-# require 'fileutils'
-
-# Hoe.plugin :newgem
-# # Hoe.plugin :website
-# # Hoe.plugin :cucumberfeatures
-# 
-# # Generate all the Rake tasks
-# # Run 'rake -T' to see list of generated tasks (from gem root directory)
-# $hoe = Hoe.spec 'stackfu' do
-#   self.developer 'Felipe Coury', 'felipe@stackfu.com'
-#   self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
-#   self.rubyforge_name       = self.name # TODO this is default value
-#   # self.extra_deps         = [['activesupport','>= 2.0.2']]
-# 
-# end
-# # 
-# # # require 'newgem/tasks'
-# # # Dir['tasks/**/*.rake'].each { |t| load t }
-# 
-# 
-# 
-# # TODO - want other tests/tasks run by default? Add them to the list
-# remove_task :default
-task :default => [:test_new]
+desc 'update changelog'  
+task :changelog do  
+  File.open('CHANGELOG', 'w+') do |changelog|  
+    `git log -z --abbrev-commit`.split("\0").each do |commit|  
+      next if commit =~ /^Merge: \d*/  
+      ref, author, time, _, title, _, message = commit.split("\n", 7)  
+      ref = ref[/commit ([0-9a-f]+)/, 1]  
+      author = author[/Author: (.*)/, 1].strip  
+      time = Time.parse(time[/Date: (.*)/, 1]).utc  
+      title.strip!  
+  
+      changelog.puts "[#{ref} | #{time}] #{author}"  
+      changelog.puts '', " * #{title}"  
+      changelog.puts '', message.rstrip if message  
+      changelog.puts  
+    end  
+  end  
+end

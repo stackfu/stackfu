@@ -1,0 +1,31 @@
+#
+# Controls are used to input data from the user
+# before installing a stack.
+#
+# Considering a stack can be rendered in multiple
+# different interfaces (like HTML, a command line app,
+# a desktop app), we have standarized the control
+# types:
+#
+# Textbox     - a free form text field
+# Numericbox  - similar to Textbox but only numeric values
+#               are accepted
+# Password    - text field without echo
+# Checkbox    - a "on/off" flag
+# Combobox    - multiple choices, on a drop down
+# Radio       - multiple choices, on radio buttons
+#
+# Example of expected contents for this file:
+#
+# controls: 
+# - name: my_config
+#   label: My Config
+#   control: Textbox
+#
+
+controls:
+<% controls.try(:each) do |ctrl| %>
+- name: <%= ctrl.first %>
+  label: <%= ctrl.first.titleize %>
+  control: <%= ctrl.last.classify.titleize %>
+<% end %>

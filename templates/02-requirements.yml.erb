@@ -1,0 +1,26 @@
+#
+# Requirements are things you want to be checked before 
+# allowing this stack to be installed.
+#
+# This is an easy way to make sure all your components
+# dependencies are correctly installed.
+#
+# Types of dependencies:
+#
+#   file          - a given file exists
+#   symlink       - a given symlink exists
+#   directory     - a given directory exits
+#   process       - a process is runnning
+#   ruby_can_load - if ruby can load a given lib
+#   ruby_gem      - if a given ruby gem is installed
+#
+# Example of expected contents for this file:
+#
+# requirements: 
+# - type: folder
+#   data: "/var"
+#   error: "You need /var folder before installing"
+# - type: file
+#   data: "/etc/init.d/mysql"
+#   error: MySQL start script was not found
+#

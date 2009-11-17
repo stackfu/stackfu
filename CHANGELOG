@@ -1,0 +1,24 @@
+[fd98c98 | Tue Nov 17 02:55:13 UTC 2009] Felipe Coury <felipe.coury@gmail.com>
+
+ * GenerateCommand now accepts controls
+
+[28109d5 | Mon Nov 16 21:35:14 UTC 2009] Felipe Coury <felipe.coury@gmail.com>
+
+ * Command `stackfu generate stack' creates manifest and scripts for a stack
+
+[3a48d41 | Sun Nov 15 05:27:02 UTC 2009] Felipe Coury <felipe.coury@gmail.com>
+
+ * Added config command and made initial configuration and server adding/removing to/from Slicehost work with the API backend.
+
+[476f5d7 | Sun Nov 15 05:26:15 UTC 2009] Felipe Coury <felipe.coury@gmail.com>
+
+ * Improved command parsing
+
+[548b1e9 | Sat Nov 14 04:17:15 UTC 2009] Felipe Coury <felipe.coury@gmail.com>
+
+ * First steps towards a running app. Created test helpers to automate testing of the CLI app.
+
+[74d38e3 | Fri Nov 13 13:19:47 UTC 2009] Felipe Coury <felipe.coury@gmail.com>
+
+ * Initial commit
+

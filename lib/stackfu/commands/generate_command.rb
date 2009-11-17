@@ -6,23 +6,45 @@ class GenerateCommand < Command
   subcommand :stack, :required_parameters => [:stack_name]
   error_messages :missing_subcommand => "You have to tell what you want to generate: a stack or a plugin."
   
+  Types = { 
+    [:checkbox, :combobox, :password, :radio, :textbox] => :control
+  }
+
+  def type(t)
+    ctrl = t.to_sym
+    Types.each_pair do |key, value|
+      ctrl = value if key.include?(ctrl)
+    end
+    ctrl
+  end
+  
   def stack(parameters, options)
     begin
       stack_name = parameters.shift
       scripts = []
+      controls = []
       while (p = parameters.shift)
         name, type = p.split(":")
-        scripts << [name, template("script.sh.erb", {
-          "filename" => name,
-          "description" => name.titleize
-        })]
+        
+        case type(type)
+        when :script
+          scripts << [name, template("script.sh.erb", {
+            "filename" => name,
+            "description" => name.titleize
+          })]
+          
+        when :control
+          controls << [name, type]
+          
+        end
       end
-
+      
       manifest = template("Manifest.yml.erb", {
         "stack_type" => "stack", 
-        "name" => parameters[0],
+        "name" => stack_name,
         "description" => "Enter a description for this stack here",
-        "scripts" => scripts.map { |s| s[0] }
+        "scripts" => scripts.map { |s| s[0] },
+        "controls" => controls
       })
     
       create("#{stack_name}", "Manifest.yml", manifest)

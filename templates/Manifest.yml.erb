@@ -4,7 +4,12 @@ name: "<%= name %>"
 description: "<%= description %>"
 tags: [add, some, tags]
 
-requirements: 
+controls:
+<% controls.each do |ctrl| %>
+- name: <%= ctrl[0] %>
+  label: <%= ctrl[0].titleize %>
+  control: <%= ctrl[1].classify.titleize %>
+<% end %>
 #
 # Requirements are things you want to be checked before 
 # allowing this stack to be installed.
@@ -28,6 +33,7 @@ requirements:
 #   data: "/etc/init.d/mysql"
 #   error: MySQL start script was not found
 #
+requirements: 
 
 #
 # Each script will be executed on the target server.
@@ -61,8 +67,6 @@ scripts:
 - description: <%= s.titleize %>
   file: <%= s %>
 <% end %>
-
-validations: 
 #
 # As opposed to requirements, validations are things you 
 # want to be checked after the installation, to make sure
@@ -79,3 +83,4 @@ validations:
 #   data: "/etc/apache2"
 #   error: Apache was not installed properly
 #
+validations: 

@@ -33,15 +33,28 @@ class TestGenerateCommand < Test::Unit::TestCase
       stdout.should =~ /install_counterstrike_server.sh.erb/
     end
     
-    # should "generate the manifest and scripts many scripts are passed" do
-    #   prepare_stack
-    #   command "generate stack test install_counterstrike_server:script install_ufw:script"
-    #   stdout.should =~ /Manifest/
-    #   stdout.should =~ /script/
-    #   stdout.should =~ /install_counterstrike_server.sh.erb/
-    #   stdout.should =~ /install_ufw.sh.erb/
-    # end
-    # 
+    should "generate the manifest with the controls" do
+      GenerateCommand.any_instance.expects(:create).with do |dir, file, contents|
+        dir == "test/scripts"
+      end
+      
+      GenerateCommand.any_instance.expects(:create).with do |dir, file, contents|
+        file == "install_counterstrike_server.sh.erb"
+      end
+      
+      GenerateCommand.any_instance.expects(:create).with do |dir, file, contents|
+        (dir == "test" && file == "Manifest.yml" && 
+        contents =~ /Clan Name/       &&
+        contents =~ /clan_name/       &&
+        contents =~ /Textbox/         &&
+        contents =~ /Clan Password/   &&
+        contents =~ /clan_password/   &&
+        contents =~ /Password/)
+      end
+      
+      command "generate stack test clan_name:textbox clan_password:password install_counterstrike_server:script"
+    end
+    
     ## Error conditions
 
     should "raise a nice error when mkdir fails" do
@@ -90,6 +103,7 @@ class TestGenerateCommand < Test::Unit::TestCase
         s =~ /name: "test"/
         s =~ /description: "Enter a description for this stack here"/
       end.raises(exc, "Error description")
+      
       return
     end
     

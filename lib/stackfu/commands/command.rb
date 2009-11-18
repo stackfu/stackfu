@@ -2,18 +2,27 @@ class Command
   attr_accessor :subcommand, :parameters, :options, :errors
   
   class << self
+    attr_accessor :aliases
+    
     def create(command, args=[])
       command ||= "help"
-      Kernel.const_get("#{command.camelize}Command").new(args)
+      klass = aliases[command.to_sym]||Kernel.const_get("#{command.camelize}Command")
+      klass.new(args)
     end
 
     def inherited(kls)
+      def kls.aliases(*aliases)
+        aliases.each do |a|
+          (Command.aliases||={})[a.to_sym] = self
+        end
+      end
+      
       def kls.alias_subcommand(spec)
-        (@aliases ||= {}).merge!(spec)
+        (@subcommand_aliases ||= {}).merge!(spec)
       end
 
       def kls.resolve(subcommand)
-        (@aliases ||= {})[subcommand.to_sym] or subcommand.to_sym
+        (@subcommand_aliases ||= {})[subcommand.to_sym] or subcommand.to_sym
       end
 
       def kls.subcommand(name, options)

@@ -27,18 +27,20 @@ class TestGenerateCommand < Test::Unit::TestCase
       expect_create :dir => "test/config", :file => "04-validations.yml"
 
       command "generate stack test"
+      stdout.should =~ /Stack test created successfully/
     end
     
     should "generate proper tree with one scripts passed" do
-      expect_create :dir => "test", :file => "stack.yml"
-      expect_create :dir => "test/script", :file => "install_counter_strike_server.sh.erb"
-      expect_create :dir => "test/config", :file => "01-controls.yml"
-      expect_create :dir => "test/config", :file => "02-requirements.yml"
-      expect_create :dir => "test/config", :file => "03-scripts.yml", 
+      expect_create :dir => "other", :file => "stack.yml"
+      expect_create :dir => "other/script", :file => "install_counter_strike_server.sh.erb"
+      expect_create :dir => "other/config", :file => "01-controls.yml"
+      expect_create :dir => "other/config", :file => "02-requirements.yml"
+      expect_create :dir => "other/config", :file => "03-scripts.yml", 
         :contents => [/install_counter_strike_server/, /Install Counter Strike Server/]
-      expect_create :dir => "test/config", :file => "04-validations.yml"
+      expect_create :dir => "other/config", :file => "04-validations.yml"
 
-      command "generate stack test install_counter_strike_server:script"
+      command "generate stack other install_counter_strike_server:script"
+      stdout.should =~ /Stack other created successfully/
     end
 
     should "generate proper tree with scripts and controls" do

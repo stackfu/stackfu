@@ -1,6 +1,10 @@
 require File.dirname(__FILE__) + '/../../test_helper.rb'
 
 class TestServerCommand < Test::Unit::TestCase
+  should "map 'servers' to ServerCommand" do
+    Command.create("servers").class.should == ServerCommand
+  end
+
   should "map 'server' to ServerCommand" do
     Command.create("server").class.should == ServerCommand
   end
@@ -19,31 +23,38 @@ class TestServerCommand < Test::Unit::TestCase
   end
   
   context "adding a slicehost server" do
-    should "abort when user says no to agreement" do
+    should "abort when user enters 'abort' into the API password field" do
       with_users "no_credentials"
 
-      disagree_of "Do you want to add your credentials now?"
+      when_asked "", :answer => 'abort'
       command "server add slicehost slicey"
       
-      stdout.should =~ /Aborted/
-      stdout.should_not =~ /Enter your Slicehost API password/
+      stdout.should =~ /Aborted adding server./
+      stdout.should =~ /Enter your Slicehost API password/
+    end
+    
+    should "show the help message when user enters 'help' into the API password field" do
+      with_users "no_credentials"
+
+      when_asked "", :answer => 'help'
+      when_asked "", :answer => 'abort'
+      command "server add slicehost slicey"
+      
+      stdout.should =~ /== Slicehost StackFu integration ==/
     end
     
     should "ask for credentials when none were given before" do
-      # stackfu server add slicehost slicey
       with_users "no_credentials"
       with_users_update
       with_server_add
 
-      agree_with "Do you want to add your credentials now?"
-      when_asked "Enter your Slicehost API password (or type 'help' for more information or 'abort' to abort):\n", :answer => "abc123"
+      when_asked "", :answer => "abc123"
         
       command "server add slicehost slicey"
       stdout.should =~ /Server slicey added successfully/
     end
 
     should "add the server if proper credentials given" do
-      # stackfu server add slicehost slicey
       with_users
       with_users_update
       with_server_add

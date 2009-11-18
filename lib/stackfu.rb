@@ -25,12 +25,15 @@ dir = Pathname(__FILE__).dirname.expand_path + 'stackfu'
 require "#{dir}/app"
 require "#{dir}/api_hooks"
 
+require "#{dir}/helpers/rendering"
+
 require "#{dir}/commands/command"
 require "#{dir}/commands/help_command"
 require "#{dir}/commands/server_command"
 require "#{dir}/commands/config_command"
 require "#{dir}/commands/generate_command"
 require "#{dir}/commands/publish_command"
+require "#{dir}/commands/list_command"
 
 module Exceptions
   class InvalidCommand < StandardError; end

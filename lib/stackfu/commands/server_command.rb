@@ -1,5 +1,6 @@
 class ServerCommand < Command
   include ApiHooks
+  aliases :servers
   
   alias_subcommand :list => :default
   subcommand :add, :required_parameters => [:provider, :server_name]
@@ -12,11 +13,6 @@ class ServerCommand < Command
     }
     if servers.any?
       size = servers.size
-      
-      if size < 1
-        puts "You have no servers under your account. Try adding some with 'server add' command." 
-        return
-      end
 
       puts "You have #{size} server#{size > 1 ? "s" : ""} under your account:"
       puts ""
@@ -65,17 +61,37 @@ class ServerCommand < Command
   private
   
   def add_credentials(user)
-    unless agree("Do you want to add your credentials now?")
-      puts "Aborted."
-      return false
+    while true
+      puts ""
+      puts "Enter your Slicehost API password (or type 'help' for more information or 'abort' to abort): "
+
+      token = ask("")
+    
+      unless ['help', 'abort'].include? token.downcase
+        user.settings.slicehost_token = token
+        if user.save
+          puts ""
+          puts "Slicehost credentials saved."
+        else
+          puts "Error: #{user.errors.full_messages.to_s}"
+        end
+        return true
+      end
+      
+      if token.downcase == 'abort'
+        puts ""
+        puts "Aborted adding server."
+        return false
+      else
+        puts ""
+        puts "== Slicehost StackFu integration ==".foreground(:green).bright
+        puts ""
+        puts "In order to allow StackFu to integrate itself with Slicehost, you need to enabled your API Access and provide us your API Password."
+        puts ""
+        puts "This can be easily done by visiting your '#{"Account > API Access".foreground(:cyan)}' area in Slicehost manager."
+        puts ""
+        puts "If you need further information, visit #{"http://stackfu.com/faq/slicehost-api-integration".underline} for a complete walkthrough of this process."
+      end
     end
-
-    puts ""
-    api_password = ask(<<-EOS)
-Enter your Slicehost API password (or type 'help' for more information or 'abort' to abort):
-EOS
-
-    user.settings.slicehost_token = api_password
-    user.save
   end
 end

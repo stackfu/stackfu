@@ -2,7 +2,13 @@ require File.dirname(__FILE__) + '/../../test_helper.rb'
 
 class TestPublishCommand < Test::Unit::TestCase
   context "Publish command" do
-    should "be aliased to pub"
+    should "be aliased to pub" do
+      setup_stack
+      with_stack_add
+      command "pub"
+      stdout.should =~ /Publishing stack my_stack/
+      stdout.should =~ /Success/
+    end
     
     should "show an error if stack.yml is not on the current folder" do
       PublishCommand.any_instance.expects(:read).with("stack.yml").raises(Errno::ENOENT)
@@ -14,17 +20,17 @@ class TestPublishCommand < Test::Unit::TestCase
       setup_stack
       with_stack_add
       command "publish"
+      stdout.should =~ /Publishing stack my_stack/
+      stdout.should =~ /Success/
     end
     
     should "report server errors" do
       setup_stack
       with_stack_add("error")
       command "publish"
+      stdout.should =~ /Publishing stack my_stack/
       stdout.should =~ /Operating system can't be empty/
     end
-    
-    # assemble the stack object
-    # publish the stack using REST
   end
 
   private

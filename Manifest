@@ -3,6 +3,11 @@ Manifest
 README
 README.rdoc
 Rakefile
+abcdef/config/01-controls.yml
+abcdef/config/02-requirements.yml
+abcdef/config/03-scripts.yml
+abcdef/config/04-validations.yml
+abcdef/stack.yml
 bin/stackfu
 lib/stackfu.rb
 lib/stackfu/api_hooks.rb
@@ -11,8 +16,10 @@ lib/stackfu/commands/command.rb
 lib/stackfu/commands/config_command.rb
 lib/stackfu/commands/generate_command.rb
 lib/stackfu/commands/help_command.rb
+lib/stackfu/commands/list_command.rb
 lib/stackfu/commands/publish_command.rb
 lib/stackfu/commands/server_command.rb
+lib/stackfu/helpers/rendering.rb
 templates/01-controls.yml.erb
 templates/02-requirements.yml.erb
 templates/03-scripts.yml.erb
@@ -27,6 +34,10 @@ test/fixtures/server_delete_error
 test/fixtures/servers
 test/fixtures/servers_empty
 test/fixtures/stack_add
+test/fixtures/stack_add_error
+test/fixtures/stacks
+test/fixtures/stacks_empty
+test/fixtures/stacks_multiple
 test/fixtures/users
 test/fixtures/users_no_credentials
 test/fixtures/users_update
@@ -39,6 +50,8 @@ test/unit/commands/test_command.rb
 test/unit/commands/test_config_command.rb
 test/unit/commands/test_generate_command.rb
 test/unit/commands/test_help_command.rb
+test/unit/commands/test_list_command.rb
 test/unit/commands/test_publish_command.rb
 test/unit/commands/test_server_command.rb
+test/unit/helpers/test_rendering.rb
 test/unit/test_stackfu.rb

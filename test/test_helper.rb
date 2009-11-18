@@ -90,15 +90,16 @@ end
 module Kernel
   def ask(question, answer_type = String, &details)
     action = $actions.first
+
     if action and action[:type] == "ask" and action[:action].first == question
       $asked << "responded to ask #{action[:action].first} with #{action[:action].last}"
-      result = $actions.shift[:action].last
-      # d "#{question} => #{result}"
+      exp_action = $actions.shift
+      result = exp_action[:action].last
       return result
     end
     
     if action
-      fail "Expected to #{action[:type]} #{action[:action].first.inspect} but asked #{question.inspect}"
+      fail "Expected to #{action[:type]} #{action[:action].inspect} but asked #{question.inspect}"
     else
       fail "Unexpected ask #{question.inspect}"
     end

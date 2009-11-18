@@ -65,6 +65,7 @@ class GenerateCommand < Command
         create("#{stack_name}/script", "#{item.first}.sh.erb", item.last)
       end or create("#{stack_name}/script")
       
+      puts "Stack #{stack_name} created successfully"
     rescue Exceptions::InvalidParameter
       puts $!.message
     rescue IOError, Errno::EEXIST

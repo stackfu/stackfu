@@ -28,6 +28,12 @@ class TestCommand < Test::Unit::TestCase
     cmd.options.should == { :mode => "FAILSAFE" }
   end
   
+  should "allow commands to have aliases" do
+    SampleCmd.aliases "smp", "sampoo"
+    Command.create("smp").class.should == SampleCmd
+    Command.create("sampoo").class.should == SampleCmd
+  end
+  
   should "be valid if only a default subcommand exists" do
     SampleCmd.new.should be_valid
   end
@@ -42,7 +48,7 @@ class TestCommand < Test::Unit::TestCase
     }.should raise_error(Exceptions::InvalidCommand, /requires 2 parameters/)
   end
   
-  should "allow aliases" do
+  should "allow subcommand aliases" do
     class Cmd < Command
       alias_subcommand :list => :default
     end

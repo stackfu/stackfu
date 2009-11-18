@@ -1,25 +1,12 @@
-require 'activeresource'
-
 class ServerCommand < Command
+  include ApiHooks
+  
   alias_subcommand :list => :default
   subcommand :add, :required_parameters => [:provider, :server_name]
   subcommand :delete, :required_parameters => [:server_name]
-  
-  class Server < ActiveResource::Base
-    self.format = :json
-  end
-  
-  class User < ActiveResource::Base
-    self.format = :json
-  end
-  
-  def initialize(args=[])
-    Server.site = StackFu::API.gsub(/api/, "#{$config[:login]}:#{$config[:token]}@api") + "/"
-    User.site = StackFu::API.gsub(/api/, "#{$config[:login]}:#{$config[:token]}@api") + "/"
-    super
-  end
-  
+
   def default(parameters, options)
+    initialize_api($config)
     servers = spinner {
       Server.find(:all)
     }

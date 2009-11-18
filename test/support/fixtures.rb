@@ -1,6 +1,11 @@
 module Fixtures
   ApiUrlPrefix = StackFu::API.gsub(/api/, "flipper:abc123@api")
   
+  def with_stack_add(kind=nil)
+    kind = kind ? "_#{kind}" : ""
+    FakeWeb.register_uri(:post, "#{ApiUrlPrefix}/stacks.json", :response => fixture("stack_add#{kind}"))
+  end
+  
   def with_server_list(kind=nil)
     kind = kind ? "_#{kind}" : ""
     FakeWeb.register_uri(:get, "#{ApiUrlPrefix}/servers.json", :response => fixture("servers#{kind}"))

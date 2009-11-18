@@ -23,19 +23,21 @@ require 'httparty'
 dir = Pathname(__FILE__).dirname.expand_path + 'stackfu'
 
 require "#{dir}/app"
+require "#{dir}/api_hooks"
 
 require "#{dir}/commands/command"
 require "#{dir}/commands/help_command"
 require "#{dir}/commands/server_command"
 require "#{dir}/commands/config_command"
 require "#{dir}/commands/generate_command"
+require "#{dir}/commands/publish_command"
 
 module Exceptions
   class InvalidCommand < StandardError; end
   class InvalidParameter < StandardError; end
 end
 
-class Array
+class Array  
   def to_phrase
     self.to_sentence(:words_connector => ",", :last_word_connector => " and ")
   end

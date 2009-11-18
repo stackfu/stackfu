@@ -124,3 +124,4 @@ module Kernel
 end
 
 def d(x); $stderr.puts x; end
+def ppd(x); $stderr.puts x.pretty_inspect; end

@@ -18,7 +18,7 @@ class HelpCommand < Command
     puts "    #{"config".foreground(:cyan)}                       configure StackFu CLI options"
     puts "    #{"server".foreground(:cyan)}                       create, delete, update and deploy to StackFu servers"
     puts "    #{"generate".foreground(:cyan)} [stack|plugin]      creates a new stack or plugin in current_dir/name"
-    puts "    #{"pub".foreground(:cyan)}                          publishes the item on the current folder to StackFu.com"
+    puts "    #{"publish".foreground(:cyan)}                      publishes the item on the current folder to StackFu.com"
     puts "" 
     puts "  For a complete guide on using StackFu from command line:"
     puts "    #{"http://stackfu.com/guides/stackfu-cli".underline}"

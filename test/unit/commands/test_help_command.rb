@@ -22,7 +22,7 @@ class TestHelpCommand < Test::Unit::TestCase
       cmd.expects(:puts).with "    #{"config".foreground(:cyan)}                       configure StackFu CLI options"
       cmd.expects(:puts).with "    #{"server".foreground(:cyan)}                       create, delete, update and deploy to StackFu servers"
       cmd.expects(:puts).with "    #{"generate".foreground(:cyan)} [stack|plugin]      creates a new stack or plugin in current_dir/name"
-      cmd.expects(:puts).with "    #{"pub".foreground(:cyan)}                          publishes the item on the current folder to StackFu.com"
+      cmd.expects(:puts).with "    #{"publish".foreground(:cyan)}                      publishes the item on the current folder to StackFu.com"
       cmd.expects(:puts).with "" 
       cmd.expects(:puts).with "  For a complete guide on using StackFu from command line:"
       cmd.expects(:puts).with "    #{"http://stackfu.com/guides/stackfu-cli".underline}"

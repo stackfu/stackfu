@@ -2,9 +2,16 @@
 type: <%= stack_type %>
 name: "<%= name %>"
 #
-# TODO: Before submitting this stack, give it a description
-# and some tags.
+# TODO: Before submitting this stack, you have to specify
+# the attributes below.
 #
+# Available operating systems
+#
+# <%= "For OS".ljust(20) %> <%= "Use" %>
+# <%= "-"*20 %> <%= "-"*20 %>
+<% FriendlyNames.each_pair do |key, value| %># <%= key.ljust(20) %> <%= value %>
+<% end %>#
+# operating_system: 
 # description: "<%= description %>"
 # tags: [add, some, tags]
 #

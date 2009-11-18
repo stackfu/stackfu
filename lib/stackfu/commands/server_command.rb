@@ -41,6 +41,7 @@ class ServerCommand < Command
   end
 
   def add(parameters, options)
+    initialize_api($config)
     user = User.find(:all).first
     
     unless user.settings.respond_to?(:slicehost_token)

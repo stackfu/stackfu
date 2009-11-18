@@ -1,4 +1,3 @@
-require 'stackfu'
 require 'activeresource'
 
 module ApiHooks

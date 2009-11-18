@@ -16,7 +16,7 @@ gem 'httparty', '>=0.4.5'
 
 require 'activesupport'
 require 'rainbow'
-require 'stackfu'
+require 'stackfu-core'
 require 'highline/import'
 require 'httparty'
 

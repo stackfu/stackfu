@@ -12,9 +12,18 @@ class PublishCommand < Command
       end
       
       stack = Stack.new(stack_spec)
-      stack.save
+      unless stack.save
+        puts "Could not publish your stack: #{stack.errors.full_messages.to_s}"
+      end
     rescue ActiveResource::ServerError
-      puts "There was an error publishing your stack: #{$!.message}"
+      ppd stack
+      message = if stack.errors.any?
+        stack.errors.full_messages.to_s
+      else
+        $!.message
+      end
+      
+      puts "There was an error publishing your stack: #{message}"
     rescue Errno::ENOENT
       puts "Couldn't find a stack on current folder. Make sure you have a file named 'stack.yml'."
     end

@@ -11,47 +11,59 @@ class TestPublishCommand < Test::Unit::TestCase
     end
     
     should "read stack.yml file when present" do
-      PublishCommand.any_instance.expects(:read).with("stack.yml").returns(<<-EOS)
+      setup_stack
+      with_stack_add
+      command "publish"
+    end
+    
+    should "report server errors" do
+      setup_stack
+      with_stack_add("error")
+      command "publish"
+      stdout.should =~ /Operating system can't be empty/
+    end
+    
+    # assemble the stack object
+    # publish the stack using REST
+  end
+
+  private
+
+  def setup_stack
+    PublishCommand.any_instance.expects(:read).with("stack.yml").returns(<<-EOS)
 --- 
 type: stack
 name: my_stack
 description: "This will deploy my stack"
 tags: [mine, stack, is, nice]
 EOS
-      PublishCommand.any_instance.expects(:read).with("config/01-controls.yml").returns(<<-EOS)
+    PublishCommand.any_instance.expects(:read).with("config/01-controls.yml").returns(<<-EOS)
 controls:
 - name: nome
-  label: Nome
-  control: Textbox
+label: Nome
+control: Textbox
 - name: idade
-  label: Idade
-  control: Numericbox
+label: Idade
+control: Numericbox
 EOS
-      PublishCommand.any_instance.expects(:read).with("config/02-requirements.yml").returns(<<-EOS)
+    PublishCommand.any_instance.expects(:read).with("config/02-requirements.yml").returns(<<-EOS)
 requirements:
 
 - type: folder
-  data: "/var"
-  error: "You need /var folder before installing"
+data: "/var"
+error: "You need /var folder before installing"
 EOS
-      PublishCommand.any_instance.expects(:read).with("config/03-scripts.yml").returns(<<-EOS)
+    PublishCommand.any_instance.expects(:read).with("config/03-scripts.yml").returns(<<-EOS)
 scripts: 
 
 - description: Echoer
-  file: echoer
+file: echoer
 EOS
-      PublishCommand.any_instance.expects(:read).with("config/04-validations.yml").returns(<<-EOS)
+    PublishCommand.any_instance.expects(:read).with("config/04-validations.yml").returns(<<-EOS)
 validations:
 - type: folder
-  data: "/etc/apache2"
-  error: Apache was not installed properly
+data: "/etc/apache2"
+error: Apache was not installed properly
 EOS
-
-      with_stack_add
-      command "publish"
-    end
-    
-    # assemble the stack object
-    # publish the stack using REST
   end
 end

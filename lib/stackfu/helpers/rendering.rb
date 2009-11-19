@@ -1,6 +1,22 @@
 module Rendering
   LEFT_MARGIN = 2
   
+  def menu_for(name, collection, convert=false)
+    choice = choose do |menu|
+      menu.header = "Available #{name.pluralize}"
+      menu.prompt = "\nSelect the #{name}:"
+      menu.shell = true
+
+      collection.each { |p| menu.choice(p.name) }
+    end
+    
+    if convert
+      collection.select { |i| i.name == choice }.first.id 
+    else
+      choice
+    end
+  end
+  
   def table(opts)
     collection = opts[:collection]
     display = opts[:display]

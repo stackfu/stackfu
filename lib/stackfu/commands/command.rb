@@ -52,6 +52,10 @@ class Command
     parse_options(args.reverse)
     validate(self.class.subcommand_options[subcommand.to_sym])
   end
+  
+  def params?
+    parameters.any?
+  end
     
   def run
     unless self.respond_to?(subcommand)

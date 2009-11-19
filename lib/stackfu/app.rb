@@ -15,6 +15,12 @@ class App
     begin
       cmd = Command.create(@args.delete_at(0), @args)
       cmd.run
+    rescue ActiveResource::UnauthorizedAccess
+      puts "Access denied for user '#{$config[:login]}'. Please check the credentials provided on file #{ENV['HOME']}/.stackfu and run 'stackfu config' for changing it."
+      raise if $dev
+    rescue ActiveResource::ResourceNotFound
+      puts "There was an internal error contacting StackFu backend. Please report this problem at support@stackfu.com or try again in a few minutes."
+      raise if $dev
     rescue Exceptions::InvalidCommand
       puts "Error: #{$!.message}"
     end

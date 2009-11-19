@@ -13,8 +13,12 @@ module ApiHooks
     self.format = :json
   end
   
+  class Provider < ActiveResource::Base
+    self.format = :json
+  end
+  
   def initialize_api(config)
-    [Server, User, Stack].each do |model_class|
+    [Server, User, Stack, Provider].each do |model_class|
       model_class.site = StackFu::API.gsub(/api/, "#{config[:login]}:#{$config[:token]}@api") + "/"
     end
   end

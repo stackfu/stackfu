@@ -40,9 +40,15 @@ module Exceptions
   class InvalidParameter < StandardError; end
 end
 
+OpenStruct.__send__(:define_method, :id) { @table[:id] || self.object_id }
+
 class Array  
   def to_phrase
     self.to_sentence(:words_connector => ",", :last_word_connector => " and ")
+  end
+
+  def to_structs
+    self.map { |hash| OpenStruct.new(hash) }
   end
   
   def to_params 

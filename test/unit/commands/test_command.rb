@@ -4,6 +4,14 @@ class SampleCmd < Command
 end
 
 class TestCommand < Test::Unit::TestCase
+  should "return true to params? if params given" do
+    SampleCmd.new(["hello", "world"]).params?.should be_true
+  end
+  
+  should "return false to params? if params given" do
+    SampleCmd.new(["--hello", "--world"]).params?.should be_false
+  end
+  
   should "allow command with no subcommand" do
     cmd = SampleCmd.new(["--force"])
     cmd.subcommand.should == :default

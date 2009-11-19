@@ -17,20 +17,4 @@ class TestStackfu < Test::Unit::TestCase
       $config.should == { :login => "flipper", :token => "abc123" }
     end
   end
-
-  context "Array.delete_first" do
-    should "delete correctly" do
-      arr = ["a","v","a"]
-      arr2 = [{ "felipe" => "yes" }, { "others" => "no" }]
-      
-      arr.delete_first("z").should == nil
-      arr.delete_first("a").should == "a"
-      arr.should == ["v", "a"]
-      
-      arr.delete_first {|i| i == "a"}.should == "a"
-      arr.should == ["v"]
-      
-      arr2.delete_first { |i| i.keys.first == "felipe" }.values.first.should == "yes"
-    end
-  end
 end

@@ -1,8 +1,11 @@
 class ConfigCommand < Command
   def default(parameters, options)
     while true
-      login = ask("StackFu Login: ")
-      token = ask("StackFu Token: ")
+      login = options[:login] || ask("StackFu Login: ")
+      token = options[:token] || ask("StackFu Token: ")
+      
+      break if options[:login] and options[:token]
+        
       puts ""
       break if agree("Is this information correct? ", true)
       puts ""

@@ -9,6 +9,22 @@ class TestServerCommand < Test::Unit::TestCase
     Command.create("server").class.should == ServerCommand
   end
   
+  context "list servers with invalid user" do
+    should "return an user friendly error" do
+      with_server_list("unauthorized")
+      command "server list"
+      stdout.should =~ /Access denied for user 'flipper'/
+    end
+  end
+  
+  context "list servers with 404" do
+    should "return an user friendly error" do
+      with_server_list("not_found")
+      command "server list"
+      stdout.should =~ /There was an internal error contacting StackFu backend./
+    end
+  end
+  
   should "indicate user have no servers" do
     with_server_list "empty"
     command "server list"
@@ -17,12 +33,32 @@ class TestServerCommand < Test::Unit::TestCase
   
   context "add command" do
     should "require two parameters" do
-      command "server add"
+      command "server add Slicehost"
       stdout.should =~ /requires 2 parameters/
     end
   end
   
+  context "adding a server" do
+    should "guide the user to add a server when no params are given" do
+      with_users
+      with_providers
+      with_provider("slicehost", "servers")
+      with_server_add
+      
+      when_asked_to_choose "\nSelect the provider:", 
+        :with_options => ["Webbynode", "Slicehost", "Linode"],
+        :answer => 1
+
+      when_asked_to_choose "\nSelect the server:",
+        :with_options => ["slicey", "peeps"],
+        :answer => 1
+
+      command "server add"
+    end
+  end
+  
   context "adding a slicehost server" do
+    
     should "abort when user enters 'abort' into the API password field" do
       with_users "no_credentials"
 

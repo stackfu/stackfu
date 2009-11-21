@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Connection: close
+Date: Sat, 21 Nov 2009 17:38:09 GMT
+Content-Type: application/json
+Content-Length: 181
+
+[{"provider_class":"Slicehost","nickname":"slicey","user_id":{"data":[75,4,88,100,225,5,78,32,253,0,0,1]},"ip":"174.143.146.46","hostname":"slicey","id":"4b082516e1054e0d24000001"}]

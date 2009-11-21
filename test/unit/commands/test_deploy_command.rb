@@ -16,8 +16,26 @@ class TestDeployCommand < Test::Unit::TestCase
     stdout.should =~ /Stack 'my_stack' was not found/
   end
   
-  should "deploy the stack when it's found" do
+  should "show an error when server not found" do
     with_stacks("by_name", "stack%5Bname%5D=my_stack")
-    command "deploy stack my_stack server"
+    with_server_list("empty", "server%5Bhostname%5D=slicey")
+    command "deploy stack my_stack slicey"
+    stdout.should =~ /Server 'slicey' was not found/
+  end
+
+  should "submit the deployment when stack and server exists" do
+    with_stacks("by_name", "stack%5Bname%5D=my_stack")
+    with_server_list("by_name", "server%5Bhostname%5D=slicey")
+    with_new_deployment
+    command "deploy stack my_stack slicey"
+    stdout.should =~ /Your deployment have been submitted/
+  end
+
+  should "tell the user if there's a problem submitting the deployment" do
+    with_stacks("by_name", "stack%5Bname%5D=my_stack")
+    with_server_list("by_name", "server%5Bhostname%5D=slicey")
+    with_new_deployment("error")
+    command "deploy stack my_stack slicey"
+    stdout.should =~ /There was a problem submitting your deployment: This is an error/
   end
 end

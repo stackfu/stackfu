@@ -17,8 +17,8 @@ module Fixtures
     register :post, :path => "stacks", :fixture => "stack_add", :kind => kind
   end
   
-  def with_server_list(kind=nil)
-    register :get, :path => "servers", :kind => kind
+  def with_server_list(kind=nil, params=nil)
+    register :get, :path => "servers", :kind => kind, :params => params
   end
   
   def with_server_add(kind=nil)
@@ -39,6 +39,10 @@ module Fixtures
 
   def with_users_update(kind=nil)
     register :post, :path => "users", :fixture => "users_update", :kind => kind
+  end
+  
+  def with_new_deployment(kind=nil)
+    register :post, :path => "deployments", :fixture => "deployment_add", :kind => kind
   end
 
   private

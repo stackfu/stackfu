@@ -14,6 +14,22 @@ class DeployCommand < Command
     unless stack.any?
       error "Stack '#{stack_name}' was not found.",
         "You can create a new stack using 'stackfu generate' or list your current stacks with 'stackfu list'."
+      return
     end
+    
+    server = Server.find(:all, :params => { :server => { :hostname => server_name } })
+    unless server.any?
+      error "Server '#{server_name}' was not found.",
+        "You can add servers 'stackfu server add' or list your current servers with 'stackfu servers'."
+      return
+    end
+    
+    deployment = Deployment.new(:stack_id => stack.first, :server_id => server.first)
+    unless deployment.save
+      error "/There was a problem submitting your deployment: #{deployment.errors.full_messages.to_s}"
+      return
+    end
+    
+    puts "Your deployment have been submitted"
   end
 end

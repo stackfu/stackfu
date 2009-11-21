@@ -31,6 +31,7 @@ test/fixtures/server_add_error
 test/fixtures/server_delete
 test/fixtures/server_delete_error
 test/fixtures/servers
+test/fixtures/servers_by_name
 test/fixtures/servers_empty
 test/fixtures/servers_not_found
 test/fixtures/servers_unauthorized

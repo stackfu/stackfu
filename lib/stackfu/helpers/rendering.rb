@@ -1,5 +1,15 @@
 module Rendering
   LEFT_MARGIN = 2
+
+  def done(message, more_info=nil)
+    puts "#{"Success:".foreground(:green).bright} #{message}"
+    puts "\n#{more_info}" if more_info
+  end
+  
+  def error(message, more_info=nil)
+    puts "#{"Error:".foreground(:red).bright} #{message}"
+    puts "\n#{more_info}" if more_info
+  end
   
   def menu_for(name, collection, convert=false)
     choice = choose do |menu|

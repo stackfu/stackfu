@@ -39,6 +39,33 @@ class TestServerCommand < Test::Unit::TestCase
   end
   
   context "adding a server" do
+    should "fail when adding to add the same server twice" do
+      with_users
+      with_server_add("dupe")
+      
+      command "server add Slicehost slicey"
+      stdout.should =~ /already exists in your account./
+    end
+    
+    should "fail when adding to add the same server twice and using the walkthrough" do
+      with_users
+      with_providers
+      with_provider("slicehost", "servers")
+      with_server_add("dupe")
+      
+      when_asked_to_choose "\nSelect the provider:", 
+        :with_options => ["Webbynode", "Slicehost", "Linode"],
+        :answer => 1
+
+      when_asked_to_choose "\nSelect the server:",
+        :with_options => ["slicey", "peeps"],
+        :answer => 1
+
+      command "server add"
+      
+      stdout.should =~ /already exists in your account./
+    end
+    
     should "guide the user to add a server when no params are given" do
       with_users
       with_providers

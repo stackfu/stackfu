@@ -27,5 +27,5 @@ controls:
 <% controls.try(:each) do |ctrl| %>
 - name: <%= ctrl.first %>
   label: <%= ctrl.first.titleize %>
-  control: <%= ctrl.last.classify.titleize %>
+  type: <%= ctrl.last.classify.titleize %>
 <% end %>

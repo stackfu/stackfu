@@ -5,33 +5,55 @@ class PublishCommand < Command
   def default(parameters, options)
     initialize_api($config)
     begin
-      stack_spec = YAML.load(read("stack.yml"))
+      stack_spec = YAML.load(read("stack.yml").gsub("type:", "_type:"))
       %w[controls requirements scripts validations].each_with_index do |item, i|
-        if (from_yaml = YAML.load(read("config/0#{i+1}-#{item}.yml")))
+        if (from_yaml = YAML.load(read("config/0#{i+1}-#{item}.yml").gsub("type:", "_type:")))
           stack_spec[item == "scripts" ? "executions" : item] = from_yaml[item]
         end
       end
       
-      stack = Stack.new(stack_spec)
-      puts "Publishing stack #{stack.name}..."
-
-      result = spinner {
-        stack.save
-      }
+      unless stack_spec["executions"].present?
+        error "To publish a stack you have to define at least one script.",
+          "Take a look at the scripts descriptor file config/03-script.yml for more information.\nYou can also use 'stackfu generate stack_name script_name:script' command to auto-generate a sample script."
+        return false
+      end
       
-      if result
-        puts "Success"
+      return unless stack_spec["executions"].each do |script|
+        template = "script/#{script["file"]}.sh.erb"
+        
+        begin
+          script["data"] = read(template)
+        rescue Errno::ENOENT
+          error "The template file for the script '#{script["description"]}' was not found.", "This stack has a script called '#{script["description"]}', and the template for it should be in a file called script/#{script["file"]}.sh.erb."
+          break false
+        end
+        
+        true
+      end
+      
+      puts "Publishing stack #{stack_spec["name"]}..."
+
+      stack = Stack.new(stack_spec)
+      if publish(stack)
+        done "Stack #{stack.name} published."
       else
-        puts "Could not publish your stack: #{stack.errors.full_messages.to_s}"
+        error "Could not publish your stack: #{stack.errors.full_messages.to_s}"
       end
     rescue ActiveResource::ServerError
-      puts "There was an error publishing your stack: #{$!.message}"
+      error "#{$!.message}"
     rescue Errno::ENOENT
-      puts "Couldn't find a stack on current folder. Make sure you have a file named 'stack.yml' or use 'stackfu generate' for creating a new stack."
+      error "Couldn't find a stack on current folder.",
+        "Make sure you have a file named 'stack.yml' or use 'stackfu generate' for creating a new stack."
     end
   end
   
   private
+  
+  def publish(stack)
+    spinner {
+      stack.save
+    }
+  end
   
   def read(file)
     File.open(file, "r").readlines.join("")

@@ -1,6 +1,5 @@
 class ListCommand < Command
   include ApiHooks
-  include Rendering
   
   def default(parameters, options)
     initialize_api($config)
@@ -8,10 +7,10 @@ class ListCommand < Command
     params = {
       :class => Stack, 
       :collection => Stack.find(:all, :conditions => { "user.id" => user.id }), 
-      :display => [:type, :name],
+      :display => [:type, :name, :description],
       :empty => "You have nothing to list yet. To generate stacks or plugins, try the 'stackfu generate' command."
     }
 
-    puts table(params) { |item| ['stack', item.name] }
+    puts table(params) { |item| ['stack', item.name, item.description.try(:truncate_words)] }
   end
 end

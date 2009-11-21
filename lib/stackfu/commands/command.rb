@@ -1,4 +1,6 @@
 class Command
+  include Rendering
+  
   attr_accessor :subcommand, :parameters, :options, :errors
   
   class << self

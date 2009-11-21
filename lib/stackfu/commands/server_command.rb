@@ -1,6 +1,5 @@
 class ServerCommand < Command
   include ApiHooks
-  include Rendering
 
   aliases :servers
   
@@ -59,15 +58,16 @@ class ServerCommand < Command
       return unless add_credentials(user)
     end
     
+    server = Server.new(:provider_class => provider, :hostname => server_name)
     result = spinner {
-      server = Server.new(:provider_class => provider, :hostname => server_name)
       server.save
     }
     
     if result
       puts "Server #{server_name} added successfully."
     else
-      puts "Server #{server_name} couldn't be added. Here's the error we received: #{server.errors.full_messages.to_s}."
+      puts " "
+      puts "Server #{server_name} couldn't be added. Here's the error we've got:\n#{server.errors.full_messages.to_s}"
     end
   end
   

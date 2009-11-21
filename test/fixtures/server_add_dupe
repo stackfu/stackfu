@@ -1,0 +1,7 @@
+HTTP/1.1 422 
+Connection: close
+Date: Fri, 20 Nov 2009 18:15:10 GMT
+Content-Type: application/xml
+Content-Length: 110
+
+<?xml version="1.0" encoding="UTF-8"?><errors><error>Hostname already exists in your account.</error></errors>

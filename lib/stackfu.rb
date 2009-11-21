@@ -34,6 +34,7 @@ require "#{dir}/commands/config_command"
 require "#{dir}/commands/generate_command"
 require "#{dir}/commands/publish_command"
 require "#{dir}/commands/list_command"
+require "#{dir}/commands/deploy_command"
 
 module Exceptions
   class InvalidCommand < StandardError; end

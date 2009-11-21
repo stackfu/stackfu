@@ -2,51 +2,56 @@ module Fixtures
   ApiUrlPrefix = StackFu::API.gsub(/api/, "flipper:abc123@api")
 
   def with_providers(kind=nil)
-    register :get, "providers", kind
+    register :get, :path => "providers", :kind => kind
   end
   
   def with_provider(id, kind=nil)
-    register :get, "providers/#{id}/#{kind}", kind, "providers"
+    register :get, :path => "providers/#{id}/#{kind}", :fixture => "providers", :kind => kind
   end
   
-  def with_stacks(kind=nil)
-    register :get, "stacks", kind
+  def with_stacks(kind=nil, params=nil)
+    register :get, :path => "stacks", :kind => kind, :params => params
   end
   
   def with_stack_add(kind=nil)
-    register :post, "stacks", kind, "stack_add"
+    register :post, :path => "stacks", :fixture => "stack_add", :kind => kind
   end
   
   def with_server_list(kind=nil)
-    register :get, "servers", kind
+    register :get, :path => "servers", :kind => kind
   end
   
   def with_server_add(kind=nil)
-    register :post, "servers", kind, "server_add"
+    register :post, :path => "servers", :fixture => "server_add", :kind => kind
   end
 
   def with_server_delete(kind=nil)
-    register :delete, "servers/4afe06b9e1054e1e00000002", kind, "server_add"
+    register :delete, :path => "servers/4afe06b9e1054e1e00000002", :fixture => "server_add", :kind => kind
   end
 
   def with_user(id, kind=nil)
-    register :get, "users/#{id}/#{kind}", kind, "users"
+    register :get, :path => "users/#{id}/#{kind}", :fixture => "users", :kind => kind
   end
 
   def with_users(kind=nil)
-    register :get, "users", kind
+    register :get, :path => "users", :kind => kind
   end
 
   def with_users_update(kind=nil)
-    register :post, "users", kind, "users_update"
+    register :post, :path => "users", :fixture => "users_update", :kind => kind
   end
 
   private
 
-  def register(method, path, kind, fixture=path)
-    kind = kind ? "_#{kind}" : ""
-    # d "Registering: #{ApiUrlPrefix}/#{path}.json => #{fixture}#{kind}"
-    FakeWeb.register_uri(method, "#{ApiUrlPrefix}/#{path}.json", :response => fixture("#{fixture}#{kind}"))
+  def register(method, options) # path, kind, fixture=path)
+    kind = options[:kind] ? "_#{options[:kind]}" : ""
+    path = options[:path] or raise "path is mandatory"
+    fixture = options[:fixture] || options[:path]
+    params = options[:params] ? "?#{options[:params]}" : ""
+    
+    # d "Registering: #{ApiUrlPrefix}/#{path}.json#{params} => #{fixture}#{kind}"
+    FakeWeb.register_uri(method, "#{ApiUrlPrefix}/#{path}.json#{params}", 
+      :response => fixture("#{fixture}#{kind}"))
   end
   
   def fixture(*path)

@@ -39,6 +39,7 @@ class Test::Unit::TestCase
   end
 
   def setup
+    FakeWeb.clean_registry
     @orig_stdout = $stdout
     $stdout = StringIO.new
     $actions = []

@@ -2,7 +2,7 @@ require 'erb'
 require 'ostruct'
 
 class GenerateCommand < Command
-  alias_subcommand :create => :generate
+  aliases :create
   subcommand :stack, :required_parameters => [:stack_name]
   error_messages :missing_subcommand => "You have to tell what you want to generate: a stack or a plugin."
   

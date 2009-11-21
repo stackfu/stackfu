@@ -9,6 +9,7 @@ lib/stackfu/api_hooks.rb
 lib/stackfu/app.rb
 lib/stackfu/commands/command.rb
 lib/stackfu/commands/config_command.rb
+lib/stackfu/commands/deploy_command.rb
 lib/stackfu/commands/generate_command.rb
 lib/stackfu/commands/help_command.rb
 lib/stackfu/commands/list_command.rb
@@ -36,6 +37,7 @@ test/fixtures/servers_unauthorized
 test/fixtures/stack_add
 test/fixtures/stack_add_error
 test/fixtures/stacks
+test/fixtures/stacks_by_name
 test/fixtures/stacks_empty
 test/fixtures/stacks_multiple
 test/fixtures/stacks_unauthorized
@@ -49,6 +51,7 @@ test/support/web_fixtures.rb
 test/test_helper.rb
 test/unit/commands/test_command.rb
 test/unit/commands/test_config_command.rb
+test/unit/commands/test_deploy_command.rb
 test/unit/commands/test_generate_command.rb
 test/unit/commands/test_help_command.rb
 test/unit/commands/test_list_command.rb

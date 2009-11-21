@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Connection: close
+Date: Sat, 21 Nov 2009 01:03:42 GMT
+Content-Type: application/json
+Content-Length: 155
+
+[{"name":"my_stack","controls":[],"operating_system":"ubuntu_810","user_id":"4b045864e1054e20fd000001","description":null,"id":"4b045864e1054e20fd000002"}]

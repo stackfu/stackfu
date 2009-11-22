@@ -23,19 +23,67 @@ class TestDeployCommand < Test::Unit::TestCase
     stdout.should =~ /Server 'slicey' was not found/
   end
 
-  should "submit the deployment when stack and server exists" do
-    with_stacks("by_name", "stack%5Bname%5D=my_stack")
-    with_server_list("by_name", "server%5Bhostname%5D=slicey")
-    with_new_deployment
-    command "deploy stack my_stack slicey"
-    stdout.should =~ /Your deployment have been submitted/
-  end
-
   should "tell the user if there's a problem submitting the deployment" do
     with_stacks("by_name", "stack%5Bname%5D=my_stack")
     with_server_list("by_name", "server%5Bhostname%5D=slicey")
     with_new_deployment("error")
+    
+    when_asked "   Nome: ", :answer => "Felipe"
+    when_asked "  Idade: ", :answer => "31"
+    
+    agree_with "This will destroy current contents of your server. Are you sure?\n"
+    
     command "deploy stack my_stack slicey"
     stdout.should =~ /There was a problem submitting your deployment: This is an error/
+  end
+
+  should "submit the deployment when stack and server exists" do
+    with_stacks("by_name", "stack%5Bname%5D=my_stack")
+    with_server_list("by_name", "server%5Bhostname%5D=slicey")
+    with_new_deployment
+    
+    when_asked "   Nome: ", :answer => "Felipe"
+    when_asked "  Idade: ", :answer => "31"
+    
+    agree_with "This will destroy current contents of your server. Are you sure?\n"
+    
+    command "deploy stack my_stack slicey"
+    
+    stdout.should =~ /Deploying:/
+    stdout.should =~ /Ubuntu 8.10/
+    stdout.should =~ /my_stack/
+    stdout.should =~ /This will deploy my stack/
+  end
+  
+  should "submit the deployment asking only for parameters not provided" do
+    with_stacks("by_name", "stack%5Bname%5D=my_stack")
+    with_server_list("by_name", "server%5Bhostname%5D=slicey")
+    with_new_deployment
+    
+    when_asked "  Idade: ", :answer => "31"
+    
+    agree_with "This will destroy current contents of your server. Are you sure?\n"
+    
+    command "deploy stack my_stack slicey --nome=Felipe"
+    
+    stdout.should =~ /Deploying:/
+    stdout.should =~ /Ubuntu 8.10/
+    stdout.should =~ /my_stack/
+    stdout.should =~ /This will deploy my stack/
+  end
+
+  should "submit the deployment using options should validate values" do
+    with_stacks("by_name", "stack%5Bname%5D=my_stack")
+    with_server_list("by_name", "server%5Bhostname%5D=slicey")
+    with_new_deployment
+
+    when_asked "   Nome: ", :answer => "Felipe"
+    when_asked "  Idade: ", :answer => "31"
+    
+    agree_with "This will destroy current contents of your server. Are you sure?\n"
+    
+    command "deploy stack my_stack slicey --idade=Abc"
+    
+    stdout.should =~ /Value for idade should be numeric/
   end
 end

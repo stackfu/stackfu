@@ -1,5 +1,42 @@
 module Rendering
   LEFT_MARGIN = 2
+  
+  def render_stack(stack, options)
+    params = {}
+    max_length = stack.controls.map { |c| c.label.size }.max
+    
+    stack.controls.each do |c|
+      if (opt = options[c.name.to_sym])
+        case c._type
+        when "Textbox"
+          params[c.name] = opt if opt
+
+        when "Numericbox"
+          begin
+            params[c.name] = Float(opt)
+          rescue ArgumentError
+            error "Value for #{c.name} should be numeric"
+          end
+
+        end
+      end
+    end
+    
+    stack.controls.each do |c|
+      unless params[c.name]
+        case c._type
+        when "Textbox"
+          params[c.name] = ask("  #{c.label.rjust(max_length)}: ")
+
+        when "Numericbox"
+          params[c.name] = ask("  #{c.label.rjust(max_length)}: ", Integer)
+
+        end
+      end
+    end
+
+    params
+  end
 
   def done(message, more_info=nil)
     puts "#{"Success:".foreground(:green).bright} #{message}"

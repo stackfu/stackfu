@@ -10,8 +10,8 @@ class DeployCommand < Command
     stack_name = parameters[0]
     server_name = parameters[1]
     
-    stack = Stack.find(:all, :params => { :stack => { :name => stack_name } })
-    unless stack.any?
+    stacks = Stack.find(:all, :params => { :stack => { :name => stack_name } })
+    unless stacks.any?
       error "Stack '#{stack_name}' was not found.",
         "You can create a new stack using 'stackfu generate' or list your current stacks with 'stackfu list'."
       return
@@ -24,9 +24,27 @@ class DeployCommand < Command
       return
     end
     
-    deployment = Deployment.new(:stack_id => stack.first, :server_id => server.first)
+    stack = stacks.first
+    puts "*** Deploying: #{stack.name.foreground(:yellow).bright} (#{OperatingSystems.os_name(stack.operating_system.to_sym).foreground(:yellow)})"
+    puts "    #{stack.description}"
+    puts ""
+    
+    if stack.controls.any?
+      puts "Please configure your deployment by answering the configuration settings below."
+      puts ""
+
+      params = render_stack(stack, options)
+    end
+    
+    puts ""
+    unless agree("This will destroy current contents of your server. Are you sure?\n")
+      puts "Aborted."
+      return false
+    end
+    
+    deployment = Deployment.new(:stack_id => stack, :server_id => server.first)
     unless deployment.save
-      error "/There was a problem submitting your deployment: #{deployment.errors.full_messages.to_s}"
+      error "There was a problem submitting your deployment: #{deployment.errors.full_messages.to_s}"
       return
     end
     

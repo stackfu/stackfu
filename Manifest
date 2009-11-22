@@ -23,6 +23,9 @@ templates/04-validations.yml.erb
 templates/script.sh.erb
 templates/stack.yml.erb
 test/fixtures/add_server_error
+test/fixtures/deployment_add
+test/fixtures/deployment_add_error
+test/fixtures/deployments
 test/fixtures/providers
 test/fixtures/providers_servers
 test/fixtures/server_add
@@ -37,11 +40,13 @@ test/fixtures/servers_not_found
 test/fixtures/servers_unauthorized
 test/fixtures/stack_add
 test/fixtures/stack_add_error
+test/fixtures/stack_adds_by_name
 test/fixtures/stacks
 test/fixtures/stacks_by_name
 test/fixtures/stacks_empty
 test/fixtures/stacks_multiple
 test/fixtures/stacks_unauthorized
+test/fixtures/stacks_with_controls
 test/fixtures/users
 test/fixtures/users_no_credentials
 test/fixtures/users_update

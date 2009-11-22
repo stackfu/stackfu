@@ -47,6 +47,29 @@ class TestServerCommand < Test::Unit::TestCase
       stdout.should =~ /already exists in your account./
     end
     
+    should "ask for credentials before the walkthrough if user have no credentials" do
+      with_users "no_credentials"
+      with_users_update
+      with_providers
+      with_provider("slicehost", "servers")
+      with_server_add
+      
+      when_asked "", :answer => "abc123"
+            
+      when_asked_to_choose "\nSelect the provider:", 
+        :with_options => ["Webbynode", "Slicehost", "Linode"],
+        :answer => 1
+
+      when_asked_to_choose "\nSelect the server:",
+        :with_options => ["slicey", "peeps"],
+        :answer => 1
+
+      command "server add"
+      
+      stdout.should =~ /Slicehost credentials saved/
+      stdout.should =~ /Server peeps added successfully/
+    end
+    
     should "fail when adding to add the same server twice and using the walkthrough" do
       with_users
       with_providers

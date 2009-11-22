@@ -40,7 +40,7 @@ class ServerCommand < Command
 
   def add(parameters, options)
     initialize_api($config)
-
+    
     if params?
       if parameters.size < 2
         puts "The command #{"server add".to_s.foreground(:yellow)} requires 2 parameters.\nUsage: stackfu server add PROVIDER SERVER_NAME"
@@ -49,7 +49,7 @@ class ServerCommand < Command
       provider = parameters[0]
       server_name = parameters[1]
     else
-      provider, server_name = *server_menu
+      server_add_header
     end
     
     user = User.find(:all).first
@@ -57,12 +57,17 @@ class ServerCommand < Command
     unless user.settings.respond_to?(:slicehost_token)
       return unless add_credentials(user)
     end
+
+    unless params?
+      provider, server_name = *server_menu
+    end
     
     server = Server.new(:provider_class => provider, :hostname => server_name)
     result = spinner {
       server.save
     }
     
+    puts " "
     if result
       puts "Server #{server_name} added successfully."
     else
@@ -73,9 +78,11 @@ class ServerCommand < Command
   
   private
   
-  def server_menu
+  def server_add_header
     puts "=== Add Server ===".foreground(:green).bright
-    puts ""
+  end
+  
+  def server_menu
     providers = spinner { Provider.find(:all) }
     provider_id = menu_for("provider", providers, true)
     

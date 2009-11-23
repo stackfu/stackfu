@@ -102,6 +102,8 @@ class Command
         name = parts.delete_at(0)
         if parts.any?
           value = parts.first 
+        elsif item.strip =~ /=$/
+          value = ""
         else
           value = true
         end

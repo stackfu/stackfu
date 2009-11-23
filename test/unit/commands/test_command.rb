@@ -24,6 +24,11 @@ class TestCommand < Test::Unit::TestCase
     cmd.options.should == { :azul => "b" }
   end
   
+  should "parse as parameter if = is present" do
+    cmd = SampleCmd.new(["--force", "--ssh_passphrase="])
+    cmd.options.should == { :force => true, :ssh_passphrase => "" }
+  end
+  
   should "parse subcommand and options" do
     cmd = SampleCmd.new(["copy", "--force", "/var/opt/music/mine.mp3", "/home/fcoury"])
     cmd.subcommand.should == :copy

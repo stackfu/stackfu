@@ -9,7 +9,7 @@ class DeployCommand < Command
 
     stack_name = parameters[0]
     server_name = parameters[1]
-    
+
     stacks = Stack.find(:all, :params => { :stack => { :name => stack_name } })
     unless stacks.any?
       error "Stack '#{stack_name}' was not found.",
@@ -42,7 +42,7 @@ class DeployCommand < Command
       return false
     end
     
-    deployment = Deployment.new(:stack_id => stack, :server_id => server.first)
+    deployment = Deployment.new(:stack => stack, :server => server.first, :params => params)
     unless deployment.save
       error "There was a problem submitting your deployment: #{deployment.errors.full_messages.to_s}"
       return

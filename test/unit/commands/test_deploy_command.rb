@@ -55,6 +55,36 @@ class TestDeployCommand < Test::Unit::TestCase
     stdout.should =~ /This will deploy my stack/
   end
   
+  should "pass the params" do
+    stack = mock("stack")
+    stack.expects(:name).returns("my_stack")
+    stack.expects(:operating_system).returns("ubuntu_810")
+    stack.expects(:description).returns("My stack description")
+
+    control = mock("control")
+    control.expects(:label).at_least_once.returns("Nome")
+    control.expects(:name).at_least_once.returns("name")
+    control.expects(:_type).at_least_once.returns("Textbox")
+    stack.expects(:controls).at_least_once.returns([control])
+
+    ApiHooks::Stack.expects(:find).returns([stack])
+    
+    server = mock("server")
+    ApiHooks::Server.expects(:find).returns([server])
+    
+    deployment = mock("deployment")
+    deployment.expects(:save).returns(true)
+    
+    ApiHooks::Deployment.expects(:new).with(:stack => stack, :server => server, :params => {"name" => "Felipe"}).returns(deployment)
+
+    when_asked "  Nome: ", :answer => "Felipe"
+    
+    agree_with "This will destroy current contents of your server. Are you sure?\n"
+    
+    command "deploy stack my_stack slicey"
+    stdout.should =~ /Deploying:/
+  end
+  
   should "submit the deployment asking only for parameters not provided" do
     with_stacks("by_name", "stack%5Bname%5D=my_stack")
     with_server_list("by_name", "server%5Bhostname%5D=slicey")

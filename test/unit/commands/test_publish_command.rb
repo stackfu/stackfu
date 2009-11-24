@@ -37,12 +37,20 @@ class TestPublishCommand < Test::Unit::TestCase
       PublishCommand.any_instance.expects(:publish).with { |stack|
         stack.name.should == "my_stack"
         stack.description.should == "This will deploy my stack"
+        
+        stack.requirements.size.should == 1
+        stack.requirements.first.attributes['type'].should == "directory"
+        stack.requirements.first.data.should == "/var"
 
         stack.controls.size.should == 2
         stack.controls.first.name.should == "nome"
         stack.controls.first.label.should == "Nome"
         stack.controls.first._type.should == "Textbox"
         stack.controls.last._type.should == "Numericbox"
+
+        stack.validations.size.should == 1
+        stack.validations.first.attributes['type'].should == "directory"
+        stack.validations.first.data.should == "/etc/apache2"
 
         stack.executions.first.data.should =~ /Echoes a variable/
         true
@@ -84,7 +92,7 @@ EOS
     PublishCommand.any_instance.expects(:read).with("config/02-requirements.yml").returns(<<-EOS)
 requirements:
 
-- type: folder
+- type: directory
   data: "/var"
   error: "You need /var folder before installing"
 EOS
@@ -96,7 +104,7 @@ scripts:
 EOS
     PublishCommand.any_instance.expects(:read).with("config/04-validations.yml").returns(<<-EOS)
 validations:
-- type: folder
+- type: directory
   data: "/etc/apache2"
   error: Apache was not installed properly
 EOS

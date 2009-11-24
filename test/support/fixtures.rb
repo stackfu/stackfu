@@ -1,6 +1,10 @@
 module Fixtures
   ApiUrlPrefix = StackFu::API.gsub(/api/, "flipper:abc123@api")
 
+  def with_logs(id, kind=nil)
+    register :get, :path => "deployments/#{id}/logs", :kind => kind
+  end
+
   def with_providers(kind=nil)
     register :get, :path => "providers", :kind => kind
   end

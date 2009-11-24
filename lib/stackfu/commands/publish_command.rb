@@ -5,10 +5,13 @@ class PublishCommand < Command
   def default(parameters, options)
     initialize_api($config)
     begin
-      stack_spec = YAML.load(read("stack.yml").gsub("type:", "_type:"))
+      stack_spec = YAML.load(read("stack.yml"))
       %w[controls requirements scripts validations].each_with_index do |item, i|
-        if (from_yaml = YAML.load(read("config/0#{i+1}-#{item}.yml").gsub("type:", "_type:")))
-          stack_spec[item == "scripts" ? "executions" : item] = from_yaml[item]
+        if (yaml = read("config/0#{i+1}-#{item}.yml"))
+          yaml.gsub!("type:", "_type:") if item == "controls"
+          if (from_yaml = YAML.load(yaml))
+            stack_spec[item == "scripts" ? "executions" : item] = from_yaml[item]
+          end
         end
       end
       

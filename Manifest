@@ -26,6 +26,8 @@ test/fixtures/add_server_error
 test/fixtures/deployment_add
 test/fixtures/deployment_add_error
 test/fixtures/deployments
+test/fixtures/logs
+test/fixtures/logs_partial
 test/fixtures/providers
 test/fixtures/providers_servers
 test/fixtures/server_add

@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Connection: close
+Date: Tue, 24 Nov 2009 01:36:30 GMT
+Content-Type: application/json
+Content-Length: 311
+
+{"log":"  [stdout] cc -Wall -g -O2   -c -o src/svn.o src/svn.c\n\n  [stdout] cc -Wall -g -O2   -c -o src/vcprompt.o src/vcprompt.c\n\n  [stdout] cc -o vcprompt src/common.o src/cvs.o src/git.o src/hg.o src/svn.o src/vcprompt.o\n\n  Finished with error code 0","id":"4b0b34c9e1054e3104000109","state":"finished"}

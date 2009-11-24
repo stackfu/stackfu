@@ -49,5 +49,91 @@ class DeployCommand < Command
     end
     
     puts "Your deployment have been submitted"
+    
+    return if options[:"no-follow"]
+    
+    from = nil
+    while true
+      status = spinner {
+        Deployment.find(deployment.id).get(:logs, :formatted => "true", :from => from)
+      }
+      
+      if status["id"]
+        show_log status["log"]
+        from = status["id"] 
+      end
+
+      break if status["state"] == "finished" or status["state"] == "failed"
+    end
+  end
+  
+  private
+  
+  def show_log(logs)
+    logs.each do |s|
+      if s =~ /^  \[stdout\]/
+        puts s.chop.gsub("  [stdout] ", "").gsub(/^/, "  ").foreground(:yellow)
+      elsif s =~ /^  \[stderr\]/
+        puts s.chop.gsub("  [stderr] ", "").gsub(/^/, "  ").foreground(:red)
+      else
+        puts s
+      end
+    end
+  end
+  
+  def hexdump(s)
+    indx = 0
+    addr = 0
+    asciiValues = Array.new
+    (0..16).each { |x|
+    	asciiValues[x] = 0
+    }
+
+    s.each_byte { |byte|
+    	asciiValues[indx] = byte
+    	if (0 == indx) then
+    		printf "%08X ",addr
+    		addr += 16
+    	end
+    	printf "%02X",byte&0xFF
+    	indx = indx.succ
+    	if (8 == indx) then
+    		print "  "
+    	end
+    	if (16 == indx) then
+    		print "  "
+    		(0..16).each { |i|
+    			if  (asciiValues[i] >= 0x20 && asciiValues[i] <= 0x7e) then
+    				printf "%c",asciiValues[i]
+    			else
+    				print "."
+    			end
+    		}
+    		puts
+    		indx = 0
+    	end
+    }
+
+    if (0 != indx) then
+    	(indx..16).each { |i|
+    		print "  "
+    		asciiValues[i] = 0
+    		indx = indx.succ
+    		if (8 == indx) then
+    			print "  "
+    		end
+    		if (16 == indx) then
+    			print "  "
+    			(0..16).each { |j|
+    				if  (asciiValues[j] >= 0x20 && asciiValues[j] <= 0x7e) then
+    					printf "%c",asciiValues[j]
+    				else
+    					print "."
+    				end
+    			}
+    		end
+    	}
+    end
+    puts
   end
 end

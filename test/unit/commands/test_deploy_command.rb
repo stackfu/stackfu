@@ -41,6 +41,39 @@ class TestDeployCommand < Test::Unit::TestCase
     with_stacks("by_name", "stack%5Bname%5D=my_stack")
     with_server_list("by_name", "server%5Bhostname%5D=slicey")
     with_new_deployment
+
+    uri = StackFu::API.gsub(/api/, "flipper:abc123@api")
+    FakeWeb.register_uri(:get, "#{uri}/deployments/4b0b3421e1054e3102000001.json", 
+      :response => fixture("deployments"))
+
+    FakeWeb.register_uri(:get, "#{uri}/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true&from=", 
+      :response => fixture("logs"))
+
+    FakeWeb.register_uri(:get, "#{uri}/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true", 
+      :response => fixture("logs"))
+
+    FakeWeb.register_uri(:get,
+      "#{uri}/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true&from=4b0b34c9e1054e3104000109", 
+      :response => fixture("logs_partial"))
+      
+    require 'net/http'
+    require 'uri'
+    
+    Net::HTTP.start('api.stackfu.com') {|http|
+      req = Net::HTTP::Get.new('/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true')
+      req.basic_auth 'flipper', 'abc123'
+      response = http.request(req)
+      # ppd JSON.load(response.body)
+    }
+    
+    Net::HTTP.start('api.stackfu.com') {|http|
+      req = Net::HTTP::Get.new('/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true&from=4b0b34c9e1054e3104000109')
+      req.basic_auth 'flipper', 'abc123'
+      response = http.request(req)
+      # d response.body
+      # d JSON.load(response.body)["id"]
+      # d JSON.load(response.body)["log"]
+    }
     
     when_asked "   Nome: ", :answer => "Felipe"
     when_asked "  Idade: ", :answer => "31"
@@ -53,6 +86,7 @@ class TestDeployCommand < Test::Unit::TestCase
     stdout.should =~ /Ubuntu 8.10/
     stdout.should =~ /my_stack/
     stdout.should =~ /This will deploy my stack/
+    stdout.should =~ /Enqueued for execution \(deployment id 4b0b3421e1054e3102000001 at Tue Nov 24 01:17:25 UTC 2009\)/
   end
   
   should "pass the params" do
@@ -81,7 +115,7 @@ class TestDeployCommand < Test::Unit::TestCase
     
     agree_with "This will destroy current contents of your server. Are you sure?\n"
     
-    command "deploy stack my_stack slicey"
+    command "deploy stack my_stack slicey --no-follow"
     stdout.should =~ /Deploying:/
   end
   
@@ -94,7 +128,7 @@ class TestDeployCommand < Test::Unit::TestCase
     
     agree_with "This will destroy current contents of your server. Are you sure?\n"
     
-    command "deploy stack my_stack slicey --nome=Felipe"
+    command "deploy stack my_stack slicey --nome=Felipe --no-follow"
     
     stdout.should =~ /Deploying:/
     stdout.should =~ /Ubuntu 8.10/
@@ -112,7 +146,7 @@ class TestDeployCommand < Test::Unit::TestCase
     
     agree_with "This will destroy current contents of your server. Are you sure?\n"
     
-    command "deploy stack my_stack slicey --idade=Abc"
+    command "deploy stack my_stack slicey --idade=Abc --no-follow"
     
     stdout.should =~ /Value for idade should be numeric/
   end

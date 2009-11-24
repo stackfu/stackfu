@@ -1,0 +1,7 @@
+HTTP/1.1 404 Not Found
+Connection: close
+Date: Tue, 24 Nov 2009 20:02:42 GMT
+Content-Type: application/xml
+Content-Length: 110
+
+<?xml version="1.0" encoding="UTF-8"?><errors><error>Stack 4b08748de1054e1477000006 not found</error></errors>

@@ -69,6 +69,9 @@ module Rendering
     display = opts[:display]
     single = opts[:class].name.demodulize.humanize.downcase
     plural = single.pluralize
+    labels = opts[:labels]
+    main_column = opts[:main_column]
+    ascii = opts[:ansi] == false
     
     if collection.empty?
       msg = opts[:empty]
@@ -77,7 +80,8 @@ module Rendering
     end
     
     columns = display.inject([]) do |arr, item| 
-      arr << { :name => item.to_s, :label => item.to_s }
+      label = labels ? labels[item] : item.to_s.titleize
+      arr << { :name => item.to_s, :label => label }
     end
     
     display.each_with_index do |column, i|
@@ -93,8 +97,13 @@ module Rendering
     title = "Listing #{collection.size} #{collection.size > 1 ? plural : single}:\n"
 
     table = []
-    table << columns.inject("") { |str, col| str << "#{col[:label].ljust(col[:size])}  " }
-    table << columns.inject("") { |str, col| str << "#{"-" * (col[:size]+1)} " }
+    if ascii
+      table << columns.inject("") { |str, col| str << "#{col[:label].ljust(col[:size])}  " }
+      table << columns.inject("") { |str, col| str << "#{"-" * (col[:size]+1)} " }
+    else
+      # table << columns.inject("") { |str, col| str << "#{col[:label].titleize.ljust(col[:size]+1).underline.foreground(:yellow)} " }
+      table << columns.inject("") { |str, col| str << "#{col[:label].ljust(col[:size]+1).underline.foreground(:yellow)}  " }
+    end
     
     collection.each do |item|
       values = block_given? ? yield(item) : nil
@@ -110,7 +119,15 @@ module Rendering
         
         just_method = value.is_a?(Numeric) ? :rjust : :ljust
 
-        str << "#{value.to_s.send(just_method, col[:size])}  " 
+        if ascii
+          str << "#{value.to_s.send(just_method, col[:size])}  " 
+        else
+          if col[:name].to_sym == main_column
+            str << "#{value.to_s.send(just_method, col[:size]).foreground(:blue)}   " 
+          else
+            str << "#{value.to_s.send(just_method, col[:size])}   " 
+          end
+        end
       end
     end
     

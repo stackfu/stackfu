@@ -15,7 +15,7 @@ class TestHelpCommand < Test::Unit::TestCase
       cmd.expects(:puts).with "  Examples:"
       cmd.expects(:puts).with "    #{stackfu} #{"generate".foreground(:cyan)} stack lamp"
       cmd.expects(:puts).with "    #{stackfu} #{"pub".foreground(:cyan)}"
-      cmd.expects(:puts).with "    #{stackfu} #{"clone".foreground(:cyan)} fcoury lamp"
+      cmd.expects(:puts).with "    #{stackfu} #{"deploy".foreground(:cyan)} lamp server1"
       cmd.expects(:puts).with ""
       cmd.expects(:puts).with "  Commands:"
       cmd.expects(:puts).with "    #{"help".foreground(:cyan)}                         you already know about this one, dontcha?"

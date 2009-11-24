@@ -9,22 +9,37 @@ class ServerCommand < Command
 
   def default(parameters, options)
     initialize_api($config)
+
     servers = spinner {
       Server.find(:all)
     }
-    if servers.any?
-      size = servers.size
 
-      puts "You have #{size} server#{size > 1 ? "s" : ""} under your account:"
-      puts ""
-      puts "  #{"Hostname".underline.foreground(:yellow)}\t#{"Provider".underline.foreground(:yellow)}\t#{"IP".underline.foreground(:yellow)}"
+    params = {
+      :class => Server, 
+      :collection => servers, 
+      :display => [:hostname, :provider_class, :ip],
+      :labels => { :hostname => "Name", :provider_class => "Provider", :ip => "IP"},
+      :main_column => :hostname,
+      :empty => "You have no servers under your account. Try adding some with 'server add' command.",
+      :ansi => options[:plain].nil?
+    }
+    
+    puts table(params)
 
-      servers.each do |server|
-        puts "  #{server.hostname.foreground(:blue)}\t#{server.provider_class}\t#{server.ip}"
-      end
-    else
-      puts "You have no servers under your account. Try adding some with 'server add' command."
-    end
+    # if servers.any?
+    #   size = servers.size
+    # 
+    #   puts "You have #{size} server#{size > 1 ? "s" : ""} under your account:"
+    #   puts ""
+    #   
+    #   puts "  #{"Hostname".underline.foreground(:yellow)}\t#{"Provider".underline.foreground(:yellow)}\t#{"IP".underline.foreground(:yellow)}"
+    # 
+    #   servers.each do |server|
+    #     puts "  #{server.hostname.foreground(:blue)}\t#{server.provider_class}\t#{server.ip}"
+    #   end
+    # else
+    #   puts "You have no servers under your account. Try adding some with 'server add' command."
+    # end
   end
   
   def delete(parameters, options)

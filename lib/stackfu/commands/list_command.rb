@@ -4,13 +4,16 @@ class ListCommand < Command
   def default(parameters, options)
     initialize_api($config)
     user = User.find(:all).first
+    stacks = spinner { Stack.find(:all, :conditions => { "user.id" => user.id }) }
     params = {
       :class => Stack, 
-      :collection => Stack.find(:all, :conditions => { "user.id" => user.id }), 
-      :display => [:type, :name, :description],
-      :empty => "You have nothing to list yet. To generate stacks or plugins, try the 'stackfu generate' command."
+      :collection => stacks, 
+      :display => [:name, :type, :description],
+      :main_column => :name,
+      :empty => "You have nothing to list yet. To generate stacks or plugins, try the 'stackfu generate' command.",
+      :ansi => options[:plain].nil?
     }
 
-    puts table(params) { |item| ['stack', item.name, item.description.try(:truncate_words)] }
+    puts table(params) { |item| [item.name, 'stack', item.description.try(:truncate_words)] }
   end
 end

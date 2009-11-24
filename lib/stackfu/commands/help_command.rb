@@ -11,7 +11,7 @@ class HelpCommand < Command
     puts "  Examples:"
     puts "    #{stackfu} #{"generate".foreground(:cyan)} stack lamp"
     puts "    #{stackfu} #{"pub".foreground(:cyan)}"
-    puts "    #{stackfu} #{"clone".foreground(:cyan)} fcoury lamp"
+    puts "    #{stackfu} #{"deploy".foreground(:cyan)} lamp server1"
     puts ""
     puts "  Commands:"
     puts "    #{"help".foreground(:cyan)}                         you already know about this one, dontcha?"

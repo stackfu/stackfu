@@ -2,8 +2,65 @@ require File.dirname(__FILE__) + '/../../test_helper.rb'
 
 class TestPublishCommand < Test::Unit::TestCase
   context "Publish command" do
+    should "check if stack exists before publishing" do
+      setup_stack
+      with_stacks "by_name", "stack%5Bname%5D=my_stack"
+      with_stack_delete "4b08748de1054e1477000006"
+      with_stack_add
+      
+      agree_with("You already have a stack named my_stack. Do you want to update it?")
+      
+      command "pub"
+      stdout.should =~ /Publishing stack my_stack/
+      stdout.should =~ /Success/
+    end
+    
+    should "check if stack exists but not ask the user for confirmation if --update is provided" do
+      setup_stack
+      with_stacks "by_name", "stack%5Bname%5D=my_stack"
+      with_stack_delete "4b08748de1054e1477000006"
+      with_stack_add
+      
+      command "pub --update"
+      stdout.should =~ /Publishing stack my_stack/
+      stdout.should =~ /Success/
+    end
+    
+    should "tell the user when there's a problem deleting the stack" do
+      setup_stack
+      with_stacks "by_name", "stack%5Bname%5D=my_stack"
+      with_stack_delete "4b08748de1054e1477000006", "server_delete_error"
+      with_stack_add
+      
+      command "pub --update"
+      stdout.should =~ /There was a problem updating your stack/
+      stdout.should_not =~ /Publishing stack my_stack/
+    end
+    
+    should "be OK when stack doesn't exist" do
+      setup_stack
+      with_stacks "empty", "stack%5Bname%5D=my_stack"
+      with_stack_add
+      
+      command "pub"
+      stdout.should =~ /Publishing stack my_stack/
+      stdout.should =~ /Success/
+    end
+    
+    should "abort if user responded false to check when stack exists before publishing" do
+      setup_stack
+      with_stacks "by_name", "stack%5Bname%5D=my_stack"
+      with_stack_add
+      
+      disagree_of("You already have a stack named my_stack. Do you want to update it?")
+      
+      command "pub"
+      stdout.should =~ /Abort./
+    end
+    
     should "be aliased to pub" do
       setup_stack
+      with_stacks "empty", "stack%5Bname%5D=my_stack"
       with_stack_add
       command "pub"
       stdout.should =~ /Publishing stack my_stack/
@@ -32,6 +89,7 @@ class TestPublishCommand < Test::Unit::TestCase
     
     should "read stack.yml file when present" do
       setup_stack
+      with_stacks "empty", "stack%5Bname%5D=my_stack"
       with_stack_add
       
       PublishCommand.any_instance.expects(:publish).with { |stack|
@@ -63,7 +121,9 @@ class TestPublishCommand < Test::Unit::TestCase
     
     should "report server errors" do
       setup_stack
+      with_stacks "empty", "stack%5Bname%5D=my_stack"
       with_stack_add("error")
+
       command "publish"
       stdout.should =~ /Publishing stack my_stack/
       stdout.should =~ /Operating system can't be empty/

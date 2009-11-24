@@ -17,8 +17,8 @@ class TestListCommand < Test::Unit::TestCase
     with_stacks
     command "list"
     stdout.should =~ /Listing 1 stack/
-    stdout.should =~ /type/
-    stdout.should =~ /name/
+    stdout.should =~ /Type/
+    stdout.should =~ /Name/
     stdout.should =~ /my_stack/
   end
   
@@ -27,8 +27,8 @@ class TestListCommand < Test::Unit::TestCase
     with_stacks("multiple")
     command "list"
     stdout.should =~ /Listing 2 stacks/
-    stdout.should =~ /type/
-    stdout.should =~ /name/
+    stdout.should =~ /Type/
+    stdout.should =~ /Name/
     stdout.should =~ /my_stack/
     stdout.should =~ /another_stack/
   end

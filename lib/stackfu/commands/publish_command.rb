@@ -6,6 +6,7 @@ class PublishCommand < Command
     initialize_api($config)
     begin
       stack_spec = YAML.load(read("stack.yml"))
+      
       %w[controls requirements scripts validations].each_with_index do |item, i|
         if (yaml = read("config/0#{i+1}-#{item}.yml"))
           yaml.gsub!("type:", "_type:") if item == "controls"
@@ -32,6 +33,28 @@ class PublishCommand < Command
         end
         
         true
+      end
+
+      stacks = Stack.find(:all, :params => { :stack => { :name => stack_spec["name"] } })
+      if stacks.any? 
+        unless options[:update]
+          if agree("You already have a stack named my_stack. Do you want to update it?")
+            puts ""
+            puts "Tip: Next time you can avoid this question using 'stack pub --update'."
+            puts ""
+          else
+            puts "Aborted."
+            return false
+          end
+        end
+        
+        stack = stacks.first
+        begin
+          Stack.delete(stack.id)
+        rescue ActiveResource::ResourceNotFound 
+          puts "There was a problem updating your stack. Please report this problem at support@stackfu.com or try again in a few minutes."
+          return
+        end
       end
       
       puts "Publishing stack #{stack_spec["name"]}..."

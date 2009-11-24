@@ -22,9 +22,9 @@ class TestRendering < Test::Unit::TestCase
         Pizza.new("Pepperoni", "Large", 17.99)
       ]
       
-      table = table(:class => Pizza, :collection => pizzas, :display => [:flavor, :size, :price])
+      table = table(:class => Pizza, :collection => pizzas, :display => [:flavor, :size, :price], :ansi => false)
       table.should =~ /^Listing 4 pizzas:/
-      table.should =~ /  flavor       size   price/
+      table.should =~ /  Flavor       Size   Price/
       table.should =~ /  ------------ ------ -----/
       table.should =~ /  Mozzarella   Large  14.99/
       table.should =~ /  Margheritta  Large  15.99/
@@ -39,11 +39,11 @@ class TestRendering < Test::Unit::TestCase
         Pizza.new("Pequenita", nil, 5.99),
       ]
       
-      table = table(:class => Pizza, :collection => pizzas, :display => [:flavor, :size, :price]) do |item|
+      table = table(:class => Pizza, :collection => pizzas, :display => [:flavor, :size, :price], :ansi => false) do |item|
         ["Mah #{item.flavor}", "#{item.size.try(:downcase)}", item.price + 2]
       end
       table.should =~ /^Listing 3 pizzas:/
-      table.should =~ /  flavor           size   price/
+      table.should =~ /  Flavor           Size   Price/
       table.should =~ /  ---------------- ------ -----/
       table.should =~ /  Mah Mozzarella   large  16.99/
       table.should =~ /  Mah Margheritta  large  17.99/
@@ -58,28 +58,28 @@ class TestRendering < Test::Unit::TestCase
         Dash.new("Mozzarella", "Large", 14.99)
       ]
       
-      table = table(:class => Dash, :collection => pizzas, :display => [:flavor, :size, :price]) do |item|
+      table = table(:class => Dash, :collection => pizzas, :display => [:flavor, :size, :price], :ansi => false) do |item|
         ["Mah #{item.flavor}", "#{item.size.try(:downcase)}", item.price + 2]
       end
       table.should =~ /^Listing 1 dash:/
-      table.should =~ /  flavor          size   price/
+      table.should =~ /  Flavor          Size   Price/
       table.should =~ /  --------------- ------ -----/
       table.should =~ /  Mah Mozzarella  large  16.99/
 
       pizzas << Dash.new("Minina", "Large", 14.99)
       
-      table = table(:class => Dash, :collection => pizzas, :display => [:flavor, :size, :price]) do |item|
+      table = table(:class => Dash, :collection => pizzas, :display => [:flavor, :size, :price], :ansi => false) do |item|
         ["Mah #{item.flavor}", "#{item.size.try(:downcase)}", item.price + 2]
       end
       table.should =~ /^Listing 2 dashes:/
-      table.should =~ /  flavor          size   price/
+      table.should =~ /  Flavor          Size   Price/
       table.should =~ /  --------------- ------ -----/
       table.should =~ /  Mah Mozzarella  large  16.99/
     end
     
     should "render an empty message if no items" do
       pizzas = []
-      table = table(:class => Pizza, :collection => pizzas, :display => [:flavor, :size, :price])
+      table = table(:class => Pizza, :collection => pizzas, :display => [:flavor, :size, :price], :ansi => false)
       table.should =~ /No pizzas./
     end
     

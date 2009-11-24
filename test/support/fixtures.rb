@@ -21,6 +21,10 @@ module Fixtures
     register :post, :path => "stacks", :fixture => "stack_add", :kind => kind
   end
   
+  def with_stack_delete(id=nil, fixture="stack_add", kind=nil)
+    register :delete, :path => "stacks/#{id}", :fixture => fixture, :kind => kind
+  end
+  
   def with_server_list(kind=nil, params=nil)
     register :get, :path => "servers", :kind => kind, :params => params
   end
@@ -57,7 +61,7 @@ module Fixtures
     fixture = options[:fixture] || options[:path]
     params = options[:params] ? "?#{options[:params]}" : ""
     
-    # d "Registering: #{ApiUrlPrefix}/#{path}.json#{params} => #{fixture}#{kind}"
+    # d "Registering: #{method} #{ApiUrlPrefix}/#{path}.json#{params} => #{fixture}#{kind}"
     FakeWeb.register_uri(method, "#{ApiUrlPrefix}/#{path}.json#{params}", 
       :response => fixture("#{fixture}#{kind}"))
   end

@@ -165,7 +165,7 @@ class TestServerCommand < Test::Unit::TestCase
       with_server_list
       
       command "server"
-      stdout.should =~ /Hostname/
+      stdout.should =~ /Name/
       stdout.should =~ /Provider/
       stdout.should =~ /IP/
 

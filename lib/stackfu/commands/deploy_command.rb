@@ -25,7 +25,7 @@ class DeployCommand < Command
     end
     
     stack = stacks.first
-    puts "*** Deploying: #{stack.name.foreground(:yellow).bright} (#{OperatingSystems.os_name(stack.operating_system.to_sym).foreground(:yellow)})"
+    puts "*** Deploying: #{stack.name.foreground(:yellow).bright} (based on #{OperatingSystems.os_name(stack.operating_system.to_sym).foreground(:yellow)})"
     puts "    #{stack.description}"
     puts ""
     
@@ -48,14 +48,20 @@ class DeployCommand < Command
       return
     end
     
-    puts "Your deployment have been submitted"
+    if options[:"no-follow"]
+      puts "Your deployment have been submitted"
+      return 
+    end
     
-    return if options[:"no-follow"]
+    verbose = options[:verbose]
     
     from = nil
     while true
+      opts = {:formatted => "true", :from => from}
+      opts.merge!(:verbose => "true") if verbose
+
       status = spinner {
-        Deployment.find(deployment.id).get(:logs, :formatted => "true", :from => from)
+        Deployment.find(deployment.id).get(:logs, opts)
       }
       
       if status["id"]
@@ -79,61 +85,5 @@ class DeployCommand < Command
         puts s
       end
     end
-  end
-  
-  def hexdump(s)
-    indx = 0
-    addr = 0
-    asciiValues = Array.new
-    (0..16).each { |x|
-    	asciiValues[x] = 0
-    }
-
-    s.each_byte { |byte|
-    	asciiValues[indx] = byte
-    	if (0 == indx) then
-    		printf "%08X ",addr
-    		addr += 16
-    	end
-    	printf "%02X",byte&0xFF
-    	indx = indx.succ
-    	if (8 == indx) then
-    		print "  "
-    	end
-    	if (16 == indx) then
-    		print "  "
-    		(0..16).each { |i|
-    			if  (asciiValues[i] >= 0x20 && asciiValues[i] <= 0x7e) then
-    				printf "%c",asciiValues[i]
-    			else
-    				print "."
-    			end
-    		}
-    		puts
-    		indx = 0
-    	end
-    }
-
-    if (0 != indx) then
-    	(indx..16).each { |i|
-    		print "  "
-    		asciiValues[i] = 0
-    		indx = indx.succ
-    		if (8 == indx) then
-    			print "  "
-    		end
-    		if (16 == indx) then
-    			print "  "
-    			(0..16).each { |j|
-    				if  (asciiValues[j] >= 0x20 && asciiValues[j] <= 0x7e) then
-    					printf "%c",asciiValues[j]
-    				else
-    					print "."
-    				end
-    			}
-    		end
-    	}
-    end
-    puts
   end
 end

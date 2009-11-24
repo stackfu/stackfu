@@ -38,6 +38,20 @@ Rake::TestTask.new(:test_new) do |test|
   test.verbose = true
 end
 
+require 'rcov/rcovtask'
+desc 'Measures test coverage using rcov'
+namespace :rcov do
+  desc 'Output unit test coverage of plugin.'
+  Rcov::RcovTask.new(:unit) do |rcov|
+    rcov.libs << 'test'
+    rcov.ruby_opts << '-rubygems'
+    rcov.pattern    = 'test/unit/**/test_*.rb'
+    rcov.output_dir = 'rcov'
+    rcov.verbose    = true
+    rcov.rcov_opts << '--exclude "gems/*"'
+  end
+end
+
 desc 'update changelog'  
 task :changelog do  
   File.open('CHANGELOG', 'w+') do |changelog|  

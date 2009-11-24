@@ -76,7 +76,7 @@ def spinner(&code)
     chars.push chars.shift
   end
 
-  print ""
+  print " \b"
   STDOUT.flush
 
   t.join

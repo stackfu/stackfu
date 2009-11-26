@@ -168,10 +168,12 @@ class TestServerCommand < Test::Unit::TestCase
       stdout.should =~ /Name/
       stdout.should =~ /Provider/
       stdout.should =~ /IP/
+      stdout.should =~ /Status/
 
       stdout.should =~ /slicey/
       stdout.should =~ /Slicehost/
       stdout.should =~ /174\.143\.145\.37/
+      stdout.should =~ /active/
     end
   end
 end

@@ -18,14 +18,14 @@ module StackFu
       params = {
         :class => Server, 
         :collection => servers, 
-        :display => [:hostname, :provider_class, :ip],
-        :labels => { :hostname => "Name", :provider_class => "Provider", :ip => "IP"},
+        :display => [:hostname, :provider_class, :ip, :status],
+        :labels => { :hostname => "Name", :provider_class => "Provider", :ip => "IP", :status => "Status" },
         :main_column => :hostname,
         :empty => "You have no servers under your account. Try adding some with 'server add' command.",
         :ansi => options[:plain].nil?
       }
     
-      puts table(params)
+      puts table(params) { |item| [item.hostname, item.provider_class, item.ip, item.status ? item.status[0] : ""] }
     end
   
     def delete(parameters, options)

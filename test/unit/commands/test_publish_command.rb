@@ -58,6 +58,17 @@ class TestPublishCommand < Test::Unit::TestCase
       stdout.should =~ /Abort./
     end
     
+    should "show the correct stack name" do
+      setup_stack(:stack_name => "blistack")
+      with_stacks "by_name_other", "stack%5Bname%5D=blistack"
+      with_stack_add
+      
+      disagree_of("You already have a stack named blistack. Do you want to update it?")
+      
+      command "pub"
+      stdout.should =~ /Abort./
+    end
+    
     should "be aliased to pub" do
       setup_stack
       with_stacks "empty", "stack%5Bname%5D=my_stack"
@@ -136,7 +147,7 @@ class TestPublishCommand < Test::Unit::TestCase
     PublishCommand.any_instance.expects(:read).with("stack.yml").returns(<<-EOS)
 --- 
 type: stack
-name: my_stack
+name: #{options[:stack_name] || "my_stack"}
 description: "This will deploy my stack"
 tags: [mine, stack, is, nice]
 EOS

@@ -3,25 +3,21 @@ require 'rubygems'
 $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 
-module StackFu
-  VERSION = '0.0.1'
-  API = "http://api.stackfu.com"
-  CONFIG_FILE = "#{ENV['HOME']}/.stackfu"
-end
-
 gem 'activesupport'
+gem 'activeresource'
 gem 'rainbow', '>=1.0.4'
 gem 'highline', '>=1.5.1'
 gem 'httparty', '>=0.4.5'
 
+require 'activeresource'
 require 'activesupport'
 require 'rainbow'
-require 'stackfu-core'
 require 'highline/import'
 require 'httparty'
 
 dir = Pathname(__FILE__).dirname.expand_path + 'stackfu'
 
+require "#{dir}/operating_systems"
 require "#{dir}/app"
 require "#{dir}/api_hooks"
 
@@ -36,9 +32,17 @@ require "#{dir}/commands/publish_command"
 require "#{dir}/commands/list_command"
 require "#{dir}/commands/deploy_command"
 
-module Exceptions
-  class InvalidCommand < StandardError; end
-  class InvalidParameter < StandardError; end
+module StackFu
+  VERSION = '0.0.1'
+  API = "http://api.stackfu.com"
+  CONFIG_FILE = "#{ENV['HOME']}/.stackfu"
+
+  include StackFu::OperatingSystems
+
+  module Exceptions
+    class InvalidCommand < StandardError; end
+    class InvalidParameter < StandardError; end
+  end
 end
 
 OpenStruct.__send__(:define_method, :id) { @table[:id] || self.object_id }
@@ -57,35 +61,10 @@ class Array
   end
 end
 
-def spinner(&code)
-  chars = %w{ | / - \\ }
-
-  result = nil
-  t = Thread.new { 
-    result = code.call
-  }
-  while t.alive?
-    print chars[0]
-    STDOUT.flush
-
-    sleep 0.1
-
-    print "\b"
-    STDOUT.flush
-
-    chars.push chars.shift
-  end
-
-  print " \b"
-  STDOUT.flush
-
-  t.join
-  result
-end
-
 class String
   def truncate_words(length = 30, end_string = '…')
     words = self.split()
     words[0..(length-1)].join(' ') + (words.length > length ? end_string : '')
   end
 end
+

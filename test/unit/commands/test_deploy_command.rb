@@ -87,6 +87,7 @@ class TestDeployCommand < Test::Unit::TestCase
     stdout.should =~ /my_stack/
     stdout.should =~ /This will deploy my stack/
     stdout.should =~ /Enqueued for execution \(deployment id 4b0b3421e1054e3102000001 at Tue Nov 24 01:17:25 UTC 2009\)/
+    stdout.should_not =~ /Please review the configuration for your deployment:/
   end
   
   should "pass the params" do
@@ -119,6 +120,27 @@ class TestDeployCommand < Test::Unit::TestCase
     stdout.should =~ /Deploying:/
   end
   
+  should "not tell the user to enter values if they are all provided" do
+    with_stacks("by_name", "stack%5Bname%5D=my_stack")
+    with_server_list("by_name", "server%5Bhostname%5D=slicey")
+    with_new_deployment
+    
+    agree_with "This will destroy current contents of your server. Are you sure?\n"
+    
+    command "deploy stack my_stack slicey --nome=Felipe --idade=31 --no-follow"
+    
+    stdout.should =~ /Deploying:/
+    stdout.should =~ /Ubuntu 8.10/
+    stdout.should =~ /my_stack/
+    stdout.should =~ /This will deploy my stack/
+    stdout.should_not =~ /Please configure your deployment by answering the configuration settings below./
+    stdout.should =~ /Please review the configuration for your deployment:/
+    stdout.should =~ /Nome/
+    stdout.should =~ /Felipe/
+    stdout.should =~ /Idade/
+    stdout.should =~ /31/
+  end
+  
   should "submit the deployment asking only for parameters not provided" do
     with_stacks("by_name", "stack%5Bname%5D=my_stack")
     with_server_list("by_name", "server%5Bhostname%5D=slicey")
@@ -134,6 +156,11 @@ class TestDeployCommand < Test::Unit::TestCase
     stdout.should =~ /Ubuntu 8.10/
     stdout.should =~ /my_stack/
     stdout.should =~ /This will deploy my stack/
+    stdout.should =~ /Please review the configuration for your deployment:/
+    stdout.should =~ /Nome/
+    stdout.should =~ /Felipe/
+    stdout.should =~ /Idade/
+    stdout.should =~ /31/
   end
 
   should "submit the deployment using options should validate values" do
@@ -149,5 +176,6 @@ class TestDeployCommand < Test::Unit::TestCase
     command "deploy stack my_stack slicey --idade=Abc --no-follow"
     
     stdout.should =~ /Value for idade should be numeric/
+    stdout.should_not =~ /Please review the configuration for your deployment:/
   end
 end

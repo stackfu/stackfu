@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../../test_helper.rb'
 
 class TestRendering < Test::Unit::TestCase
-  include Rendering
+  include StackFu::Rendering
   
   class Pizza
     attr_accessor :flavor, :size, :price

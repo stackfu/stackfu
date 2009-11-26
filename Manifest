@@ -16,6 +16,7 @@ lib/stackfu/commands/list_command.rb
 lib/stackfu/commands/publish_command.rb
 lib/stackfu/commands/server_command.rb
 lib/stackfu/helpers/rendering.rb
+lib/stackfu/operating_systems.rb
 stackfu.gemspec
 templates/01-controls.yml.erb
 templates/02-requirements.yml.erb
@@ -43,11 +44,14 @@ test/fixtures/servers_not_found
 test/fixtures/servers_unauthorized
 test/fixtures/stack_add
 test/fixtures/stack_add_error
+test/fixtures/stack_add_error_dupe
 test/fixtures/stack_adds_by_name
+test/fixtures/stack_delete_not_found
 test/fixtures/stacks
 test/fixtures/stacks_by_name
 test/fixtures/stacks_empty
 test/fixtures/stacks_multiple
+test/fixtures/stacks_not_found
 test/fixtures/stacks_unauthorized
 test/fixtures/stacks_with_controls
 test/fixtures/users

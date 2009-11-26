@@ -6,5 +6,5 @@ require 'stackfu'
 HighLine.track_eof = false
 $dev = (ENV['STACKFU_ENV'] || "production") == "development"
 
-app = App.new(ARGV)
+app = StackFu::App.new(ARGV)
 app.start

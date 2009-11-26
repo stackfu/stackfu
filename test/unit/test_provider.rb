@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper.rb'
 
 class TestProvider < Test::Unit::TestCase
-  include ApiHooks
+  include StackFu::ApiHooks
   
   should "provide a list with provider names and codes" do
     with_providers

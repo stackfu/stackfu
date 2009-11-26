@@ -28,6 +28,7 @@ class Test::Unit::TestCase
   include CustomMatchers
   include IoStub
   include Fixtures
+  include StackFu
 
   def command(cmd, settings_present=true)
     cmd ||= ""
@@ -85,8 +86,10 @@ class Test::Unit::TestCase
   end
 end
 
-class ConfigCommand
-  def save_config(login, token)
+module StackFu
+  class ConfigCommand
+    def save_config(login, token)
+    end
   end
 end
 

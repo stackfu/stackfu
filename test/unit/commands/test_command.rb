@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../../test_helper.rb'
 
-class SampleCmd < Command
+class SampleCmd < StackFu::Command
 end
 
 class TestCommand < Test::Unit::TestCase

@@ -25,6 +25,18 @@ module Fixtures
     register :delete, :path => "stacks/#{id}", :fixture => fixture, :kind => kind
   end
   
+  def with_plugins(kind=nil, params=nil)
+    register :get, :path => "plugins", :kind => kind, :params => params
+  end
+  
+  def with_plugin_add(kind=nil)
+    register :post, :path => "plugins", :fixture => "plugin_add", :kind => kind
+  end
+  
+  def with_plugin_delete(id=nil, fixture="plugin_add", kind=nil)
+    register :delete, :path => "plugins/#{id}", :fixture => fixture, :kind => kind
+  end
+  
   def with_server_list(kind=nil, params=nil)
     register :get, :path => "servers", :kind => kind, :params => params
   end
@@ -67,7 +79,9 @@ module Fixtures
   end
   
   def fixture(*path)
-    File.join(File.dirname(__FILE__), "../fixtures", path)
+    file_name = File.join(File.dirname(__FILE__), "../fixtures", path)
+    raise "Fixture #{file_name} was not found" unless File.exists?(file_name)
+    file_name
   end
 
   def fixture_contents(*path)

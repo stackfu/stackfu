@@ -1,0 +1,7 @@
+HTTP/1.1 404 Not Found
+Connection: close
+Date: Tue, 24 Nov 2009 19:43:03 GMT
+Content-Type: application/json
+Content-Length: 53
+
+{"error":"Plugin 4b08748de1054e1477000006 not found"}

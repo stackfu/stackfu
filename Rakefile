@@ -10,7 +10,7 @@ Echoe.new('stackfu', '0.1.0') do |p|
   p.author          = "Felipe Coury"
   p.email           = "felipe@stackfu.com"  
   p.ignore_pattern  = ["tmp/*", "script/*"]  
-  p.runtime_dependencies = [
+  p.dependencies = [
     ['activesupport','>= 2.2.2'],
     ['rainbow', '>=1.0.4'],
     ['highline', '>=1.5.1'],

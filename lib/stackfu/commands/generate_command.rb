@@ -5,6 +5,7 @@ module StackFu
   class GenerateCommand < Command
     aliases :create
     subcommand :stack, :required_parameters => [:stack_name]
+    subcommand :plugin, :required_parameters => [:plugin_name]
     error_messages :missing_subcommand => "You have to tell what you want to generate: a stack or a plugin."
   
     Types = { 
@@ -20,10 +21,18 @@ module StackFu
       end
       ctrl
     end
-  
+    
+    def plugin(parameters, options)
+      generate("plugin", parameters, options)
+    end
+    
     def stack(parameters, options)
+      generate("stack", parameters, options)
+    end
+  
+    def generate(what, parameters, options)
       begin
-        stack_name = parameters.shift
+        item_name = parameters.shift
         items = {}
         while (p = parameters.shift)
           name, type = p.split(":")
@@ -40,37 +49,36 @@ module StackFu
           
           else
             raise Exceptions::InvalidParameter, 
-              "Don't know how to generate a stack with #{type ? "#{type} " : ""}#{name}. Use 'stackfu help generate' for more information."
+              "Don't know how to generate a #{what} with #{type ? "#{type} " : ""}#{name}. Use 'stackfu help generate' for more information."
           
           end
         end
       
         stack = template("stack.yml.erb", {
-          "stack_type" => "stack", 
-          "name" => stack_name,
+          "name" => item_name,
           "description" => "Enter a description for this stack here"
         })
       
-        create("#{stack_name}", "stack.yml", stack)
+        create("#{item_name}", "#{what}.yml", stack)
 
         i = 1
         %w[controls requirements scripts validations].each do |item|
           template_name = "0#{i}-#{item}.yml"
-          create "#{stack_name}/config", template_name, template("#{template_name}.erb", {
+          create "#{item_name}/config", template_name, template("#{template_name}.erb", {
             item => items[item]
           })
           i += 1
         end
     
         items["scripts"].try(:each) do |item|
-          create("#{stack_name}/script", "#{item.first}.sh.erb", item.last)
-        end or create("#{stack_name}/script")
+          create("#{item_name}/script", "#{item.first}.sh.erb", item.last)
+        end or create("#{item_name}/script")
       
-        puts "Stack #{stack_name} created successfully"
+        puts "#{what.titleize} #{item_name} created successfully"
       rescue Exceptions::InvalidParameter
         puts $!.message
       rescue IOError, Errno::EEXIST
-        puts "There was an error creating your stack: #{$!.message}"      
+        puts "There was an error creating your #{what}: #{$!.message}"      
       end
     end
   

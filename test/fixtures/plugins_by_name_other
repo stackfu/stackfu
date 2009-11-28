@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Connection: close
+Date: Sat, 21 Nov 2009 23:16:16 GMT
+Content-Type: application/json
+Content-Length: 915
+
+[{"name":"bliplugin","controls":[{"label":"Nome","name":"nome","order":0,"_type":"Textbox","id":"4b08748de1054e1477000002"},{"label":"Idade","name":"idade","order":1,"_type":"Numericbox","id":"4b08748de1054e1477000003"}],"tags":["mine","plugin","is","nice"],"type":"plugin","user_id":{"data":[75,8,116,141,225,5,78,20,119,0,0,1]},"validations":[{"data":"/etc/apache2","attrs":{},"type":"directory","id":"4b08748de1054e1477000005","error":"Apache was not installed properly"}],"executions":[{"script":null,"data":"#\n# echoe.sh\n# Echoes a variable\n#\n\necho \"\u003C%= nome %\u003E is \u003C%= age %\u003E years old\"\n","file":"echoer","description":"Echoer","id":"4b08748de1054e1477000007"}],"requirements":[{"data":"/var","attrs":{},"type":"directory","id":"4b08748de1054e1477000004","error":"You need /var folder before installing"}],"description":"This will deploy my plugin","id":"4b08748de1054e1477000006"}]

@@ -9,19 +9,33 @@ gem 'rainbow', '>=1.0.4'
 gem 'highline', '>=1.5.1'
 gem 'httparty', '>=0.4.5'
 
-require 'activeresource'
-require 'activesupport'
+begin
+  require 'active_resource'
+  require 'active_support'
+rescue LoadError
+  require 'activeresource'
+  require 'activesupport'
+end
 require 'rainbow'
 require 'highline/import'
 require 'httparty'
 
+begin
+  require 'Win32/Console/ANSI' if RUBY_PLATFORM =~ /mswin/
+rescue LoadError
+  puts "Hint: if you want to make your output better in windows, install the win32console gem:"
+  puts "      gem install win32console"
+  puts ""
+end
+
+
 dir = Pathname(__FILE__).dirname.expand_path + 'stackfu'
+
+require "#{dir}/helpers/rendering"
 
 require "#{dir}/operating_systems"
 require "#{dir}/app"
 require "#{dir}/api_hooks"
-
-require "#{dir}/helpers/rendering"
 
 require "#{dir}/commands/command"
 require "#{dir}/commands/help_command"
@@ -43,6 +57,7 @@ module StackFu
     class InvalidCommand < StandardError; end
     class InvalidParameter < StandardError; end
   end
+  
 end
 
 OpenStruct.__send__(:define_method, :id) { @table[:id] || self.object_id }

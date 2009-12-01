@@ -89,5 +89,53 @@ class TestRendering < Test::Unit::TestCase
         :display => [:flavor, :size, :price], :empty => "Sorry dude, no pizzas!")
       table.should =~ /Sorry dude, no pizzas!/
     end
+    
+    should "two objects with same duck type" do
+      class Animal
+        attr_accessor :name
+        def initialize(name)
+          @name = name
+        end
+      end
+      
+      class Dog < Animal
+        def legs; 4; end
+      end
+      
+      class Spider < Animal
+        def legs; 8; end
+      end
+      
+      class Fly < Animal
+        def legs; 6; end
+      end
+      
+      animals = [Dog.new("Jimmy"), Dog.new("Buddy"), Fly.new("Buggah"), Spider.new("Mommy")]
+      table = table(
+        :class => [Dog, Fly, Spider], 
+        :display => [:name, :legs],
+        :collection => animals, :ansi => false
+      )
+
+      table.should =~ /^Listing 2 dogs, 1 fly and 1 spider/
+      table.should =~ /  Name    Legs /
+      table.should =~ /  ------- -----/
+      table.should =~ /  Jimmy      4/
+      table.should =~ /  Buddy      4/
+      table.should =~ /  Buggah     6/
+      table.should =~ /  Mommy      8/
+    end
+    
+    should "render a custom headline" do
+      pizzas = [Pizza.new("Mozzarella", "Large", 14.99)]
+      table = table(
+        :class => Pizza, 
+        :collection => pizzas, 
+        :display => [:flavor, :size, :price],
+        :header => "We have some pizzas for you")
+
+      table.should =~ /^We have some pizzas for you/
+      table.should_not =~ /^Listing 1 pizza/
+    end
   end
 end

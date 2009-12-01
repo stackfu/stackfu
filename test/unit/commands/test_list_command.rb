@@ -8,6 +8,7 @@ class TestListCommand < Test::Unit::TestCase
   should "tell the user if no stack found" do
     with_users
     with_stacks("empty")
+    with_plugins("empty")
     command "list"
     stdout.should =~ /You have nothing to list yet. To generate stacks or plugins, try the 'stackfu generate' command/
   end
@@ -15,6 +16,7 @@ class TestListCommand < Test::Unit::TestCase
   should "list 1 stack" do
     with_users
     with_stacks
+    with_plugins("empty")
     command "list"
     stdout.should =~ /Listing 1 stack/
     stdout.should =~ /Type/
@@ -22,9 +24,35 @@ class TestListCommand < Test::Unit::TestCase
     stdout.should =~ /my_stack/
   end
   
+  should "list 1 plugin" do
+    with_users
+    with_stacks("empty")
+    with_plugins
+    command "list"
+    stdout.should =~ /Listing 1 plugin/
+    stdout.should =~ /Type/
+    stdout.should =~ /plugin/
+    stdout.should =~ /Name/
+    stdout.should =~ /my_plugin/
+  end
+  
+  should "list 1 plugin and 2 stacks" do
+    with_users
+    with_stacks("multiple")
+    with_plugins
+    command "list --plain"
+    stdout.should =~ /Listing 2 stacks and 1 plugin/
+    stdout.should =~ /Type/
+    stdout.should =~ /plugin/
+    stdout.should =~ /Name/
+    stdout.should =~ /my_plugin      plugin/
+    stdout.should =~ /my_stack/
+  end
+  
   should "list 2 stacks" do
     with_users
     with_stacks("multiple")
+    with_plugins("empty")
     command "list"
     stdout.should =~ /Listing 2 stacks/
     stdout.should =~ /Type/

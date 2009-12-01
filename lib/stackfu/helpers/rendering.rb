@@ -78,11 +78,21 @@ module StackFu
     def table(opts)
       collection = opts[:collection]
       display = opts[:display]
-      single = opts[:class].name.demodulize.humanize.downcase
-      plural = single.pluralize
+      if (classes = opts[:class]).is_a?(Array)
+        single = {}
+        plural = {}
+        opts[:class].each do |kls|
+          single[kls] = kls.name.demodulize.humanize.downcase
+          plural[kls] = single[kls].pluralize
+        end
+      else
+        single = opts[:class].name.demodulize.humanize.downcase
+        plural = single.pluralize
+      end
       labels = opts[:labels]
       main_column = opts[:main_column]
       ascii = opts[:ansi] == false
+      header = opts[:header]
     
       if collection.empty?
         msg = opts[:empty]
@@ -105,7 +115,22 @@ module StackFu
         columns[i][:size] = size
       end
     
-      title = "Listing #{collection.size} #{collection.size > 1 ? plural : single}:\n"
+      title = header || if classes.is_a?(Array)
+        counter = Hash.new(0)
+        collection.each do |item| 
+          counter[item.class] += 1
+        end
+        
+        parts = []
+        collection.map(&:class).uniq.each do |k|
+          v = counter[k]
+          parts << "#{v} #{v > 1 ? plural[k] : single[k]}"
+        end
+        
+        "Listing #{parts.to_phrase}:\n"
+      else
+        "Listing #{collection.size} #{collection.size > 1 ? plural : single}:\n"
+      end
 
       table = []
       if ascii

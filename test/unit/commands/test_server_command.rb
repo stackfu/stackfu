@@ -54,11 +54,11 @@ class TestServerCommand < Test::Unit::TestCase
       with_provider("slicehost", "servers")
       with_server_add
       
-      when_asked "", :answer => "abc123"
-            
       when_asked_to_choose "\nSelect the provider:", 
         :with_options => ["Webbynode", "Slicehost", "Linode"],
         :answer => 1
+
+      when_asked "", :answer => "abc123"
 
       when_asked_to_choose "\nSelect the server:",
         :with_options => ["slicey", "peeps"],
@@ -107,8 +107,88 @@ class TestServerCommand < Test::Unit::TestCase
     end
   end
   
-  context "adding a slicehost server" do
+  context "adding a webbynode server" do
+    should "abort when user enters 'abort' into the API login field" do
+      with_users "no_credentials"
+
+      when_asked "Webbynode Login:", :answer => 'abort'
+      command "server add webbynode sandbox"
+      
+      stdout.should =~ /Aborted adding server./
+      stdout.should =~ /Enter your Webbynode API credentials/
+    end
+
+    should "abort when user enters 'abort' into the API token field" do
+      with_users "no_credentials"
+
+      when_asked "Webbynode Login:", :answer => 'fcoury@me.com'
+      when_asked "Webbynode Token:", :answer => 'abort'
+
+      command "server add webbynode sandbox"
+      
+      stdout.should =~ /Aborted adding server./
+      stdout.should =~ /Enter your Webbynode API credentials/
+    end
     
+    should "show the help message when user enters 'help' into the API login field" do
+      with_users "no_credentials"
+
+      when_asked "Webbynode Login:", :answer => 'help'
+      when_asked "Webbynode Login:", :answer => 'abort'
+      command "server add webbynode sandbox"
+      
+      stdout.should =~ /== Webbynode StackFu integration ==/
+    end
+    
+    should "ask for credentials when none were given before" do
+      with_users "no_credentials"
+      with_users_update
+      with_server_add
+
+      when_asked "Webbynode Login:", :answer => 'fcoury@me.com'
+      when_asked "Webbynode Token:", :answer => 'abc123456'
+              
+      command "server add webbynode sandbox"
+      stdout.should =~ /Webbynode credentials saved./
+      stdout.should =~ /Server sandbox added successfully/
+    end
+    
+    should "add the server if proper credentials given" do
+      with_users
+      with_users_update
+      with_server_add
+
+      command "server add webbynode sandbox"
+      stdout.should =~ /Server sandbox added successfully/
+    end
+    
+    should "delete the server if proper credentials given and server exists" do
+      with_users
+      with_server_list("webbynode")
+      with_server_delete
+      
+      command "server delete sandbox"
+      stdout.should =~ /Server sandbox deleted successfully/
+    end
+    
+    should "show the webbynode server when listing servers" do
+      with_users
+      with_server_list("webbynode")
+      
+      command "server"
+      stdout.should =~ /Name/
+      stdout.should =~ /Provider/
+      stdout.should =~ /IP/
+      stdout.should =~ /Status/
+
+      stdout.should =~ /sandbox/
+      stdout.should =~ /Webbynode/
+      stdout.should =~ /208\.88\.125\.207/
+      stdout.should =~ /running/
+    end
+  end
+  
+  context "adding a slicehost server" do
     should "abort when user enters 'abort' into the API password field" do
       with_users "no_credentials"
 
@@ -173,7 +253,7 @@ class TestServerCommand < Test::Unit::TestCase
       stdout.should =~ /slicey/
       stdout.should =~ /Slicehost/
       stdout.should =~ /174\.143\.145\.37/
-      stdout.should =~ /active/
+      stdout.should =~ /running/
     end
   end
 end

@@ -49,16 +49,13 @@ module StackFu
         end
         provider = parameters[0]
         server_name = parameters[1]
+                
+        user = User.find(:all).first
+        return false unless send("check_#{provider.downcase}", user)
       else
         server_add_header
       end
     
-      user = User.find(:all).first
-
-      unless user.settings.respond_to?(:slicehost_token)
-        return unless add_credentials(user)
-      end
-
       unless params?
         provider, server_name = *server_menu
       end
@@ -78,12 +75,30 @@ module StackFu
     end
   
     private
+    
+    def check_slicehost(user)
+      unless user.settings.respond_to?(:slicehost_token)
+        return false unless add_slicehost_credentials(user)
+      end
+      
+      return true
+    end
+  
+    def check_webbynode(user)
+      unless user.settings.respond_to?(:webbynode_login) and user.settings.respond_to?(:webbynode_token) 
+        return false unless add_webbynode_credentials(user)
+      end
+      
+      return true
+    end
   
     def server_add_header
       puts "=== Add Server ===".foreground(:green).bright
     end
   
     def server_menu
+      user = User.find(:all).first
+
       providers = spinner { Provider.find(:all) }
       provider_id = menu_for("provider", providers, true)
     
@@ -92,6 +107,8 @@ module StackFu
       puts ""
       puts "Provider: #{provider_id.foreground(:blue)}"
       puts ""
+      
+      return false unless send("check_#{provider_id.downcase}", user)
 
       servers = spinner { provider.get(:servers).to_structs }
       server = menu_for("server", servers)
@@ -108,7 +125,51 @@ module StackFu
       }
     end
   
-    def add_credentials(user)
+    def add_webbynode_credentials(user)
+      while true
+        puts ""
+        puts "Enter your Webbynode API credentials below (or type 'help' for more information or 'abort' to abort)"
+
+        login = ask("Webbynode Login:")
+        
+        unless login.try(:downcase) == "abort" or login.try(:downcase) == "help"
+          token = ask("Webbynode Token:")
+        end
+        
+        credentials = [login || "", token || ""].map(&:downcase)
+        
+        if credentials.include?('help')
+          puts ""
+          puts "== Webbynode StackFu integration ==".foreground(:green).bright
+          puts ""
+          puts "In order to allow StackFu to integrate itself with Webbynode, you need to provide the email address you use to login into Webbynode Manager and your API token."
+          puts ""
+          puts "This can be easily done by visiting your '#{"Account".foreground(:cyan)}' area in Webbynode Manager. On the box where your summary is presented, copy the 'API Token:' field content."
+          puts ""
+          puts "If you need further information, visit #{"http://stackfu.com/faq/webbynode-api-integration".underline} for a complete walkthrough of this process."
+
+        elsif credentials.include?('abort')
+          
+          puts "Aborted adding server."
+          return false
+
+        else
+          user.settings.webbynode_login = login
+          user.settings.webbynode_token = token
+          
+          if user.save
+            puts ""
+            puts "Webbynode credentials saved."
+          else
+            puts "Error: #{user.errors.full_messages.to_s}"
+          end
+          
+          return true          
+        end
+      end
+    end
+    
+    def add_slicehost_credentials(user)
       while true
         puts ""
         puts "Enter your Slicehost API password (or type 'help' for more information or 'abort' to abort): "

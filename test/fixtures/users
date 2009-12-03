@@ -2,6 +2,6 @@ HTTP/1.1 200 OK
 Connection: close
 Date: Sat, 14 Nov 2009 01:24:37 GMT
 Content-Type: application/json;charset=utf-8
-Content-Length: 184
+Content-Length: 245
 
-[{"id":"4afe06b8e1054e1e00000001","_id":"4afe06b8e1054e1e00000001","settings":{"slicehost_token":"6ed05e7521dfb6a19c98a84f2d0a28fdffc1bf00e050fe7114a66d3049e9715e"},"login":"flipper"}]
+[{"id":"4afe06b8e1054e1e00000001","_id":"4afe06b8e1054e1e00000001","settings":{"slicehost_token":"6ed05e7521dfb6a19c98a84f2d0a28fdffc1bf00e050fe7114a66d3049e9715e","webbynode_token":"abc123","webbynode_login":"fcoury@me.com"},"login":"flipper"}]

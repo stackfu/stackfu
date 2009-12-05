@@ -3,8 +3,8 @@ require 'rubygems'
 $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 
-gem 'activesupport'
-gem 'activeresource'
+gem 'activesupport', '>=2.3.4'
+gem 'activeresource', '>=2.3.4'
 gem 'rainbow', '>=1.0.4'
 gem 'highline', '>=1.5.1'
 gem 'httparty', '>=0.4.5'

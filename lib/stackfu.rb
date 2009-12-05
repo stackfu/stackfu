@@ -28,14 +28,14 @@ rescue LoadError
   puts ""
 end
 
-
 dir = Pathname(__FILE__).dirname.expand_path + 'stackfu'
 
 require "#{dir}/helpers/rendering"
+require "#{dir}/helpers/providers_credentials"
 
 require "#{dir}/operating_systems"
-require "#{dir}/app"
 require "#{dir}/api_hooks"
+require "#{dir}/app"
 
 require "#{dir}/commands/command"
 require "#{dir}/commands/help_command"
@@ -45,6 +45,7 @@ require "#{dir}/commands/generate_command"
 require "#{dir}/commands/publish_command"
 require "#{dir}/commands/list_command"
 require "#{dir}/commands/deploy_command"
+require "#{dir}/commands/dump_command"
 
 module StackFu
   VERSION = '0.0.1'

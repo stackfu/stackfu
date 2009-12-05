@@ -12,8 +12,6 @@ module StackFu
     end
 
     def default(parameters, options)
-      initialize_api($config)
-
       what = :stack if stack?
       what = :plugin if plugin?
       

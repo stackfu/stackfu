@@ -57,8 +57,12 @@ module Fixtures
     register :get, :path => "users", :kind => kind
   end
 
-  def with_users_update(kind=nil)
+  def with_users_add(kind=nil)
     register :post, :path => "users", :fixture => "users_update", :kind => kind
+  end
+  
+  def with_users_update(id=nil, kind=nil)
+    register :put, :path => "users#{id ? "/#{id}" : ""}", :fixture => "users_update", :kind => kind
   end
   
   def with_new_deployment(kind=nil)

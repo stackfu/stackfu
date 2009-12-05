@@ -1,0 +1,23 @@
+scripts: 
+
+- description: GitHub Credentials Setup
+  file: github_credentials_setup
+
+- description: Dotfiles Installation
+  file: dotfiles_installation
+
+- description: Ruby Environment
+  file: ruby_environment
+  
+- description: Redis Installation
+  file: redis_installation
+
+- description: Resque Installation
+  file: resque_installation
+
+- description: Nginx and Passenger
+  file: nginx_and_passenger
+
+- description: StackFu
+  file: stackfu
+

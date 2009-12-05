@@ -6,8 +6,6 @@ module StackFu
     error_messages :missing_subcommand => "You have to tell what you want to deploy (a stack or a plugin) and to which server."
 
     def stack(parameters, options)
-      initialize_api($config)
-
       stack_name = parameters[0]
       server_name = parameters[1]
 

@@ -3,7 +3,6 @@ module StackFu
     include ApiHooks
   
     def default(parameters, options)
-      initialize_api($config)
       user = User.find(:all).first
       items = spinner { 
         [

@@ -49,7 +49,7 @@ class TestServerCommand < Test::Unit::TestCase
     
     should "ask for credentials before the walkthrough if user have no credentials" do
       with_users "no_credentials"
-      with_users_update
+      with_users_add
       with_providers
       with_provider("slicehost", "servers")
       with_server_add
@@ -142,7 +142,7 @@ class TestServerCommand < Test::Unit::TestCase
     
     should "ask for credentials when none were given before" do
       with_users "no_credentials"
-      with_users_update
+      with_users_add
       with_server_add
 
       when_asked "Webbynode Login:", :answer => 'fcoury@me.com'
@@ -155,7 +155,7 @@ class TestServerCommand < Test::Unit::TestCase
     
     should "add the server if proper credentials given" do
       with_users
-      with_users_update
+      with_users_add
       with_server_add
 
       command "server add webbynode sandbox"
@@ -211,7 +211,7 @@ class TestServerCommand < Test::Unit::TestCase
     
     should "ask for credentials when none were given before" do
       with_users "no_credentials"
-      with_users_update
+      with_users_add
       with_server_add
 
       when_asked "", :answer => "abc123"
@@ -222,7 +222,7 @@ class TestServerCommand < Test::Unit::TestCase
 
     should "add the server if proper credentials given" do
       with_users
-      with_users_update
+      with_users_add
       with_server_add
 
       command "server add slicehost slicey"

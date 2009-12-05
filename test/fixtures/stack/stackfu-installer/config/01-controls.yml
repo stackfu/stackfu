@@ -1,0 +1,22 @@
+controls:
+
+- name: github_user
+  label: Github User
+  type: Textbox
+
+- name: github_token
+  label: Github Token
+  type: Textbox
+
+- name: user_name
+  label: User Name
+  type: Textbox
+
+- name: user_email
+  label: User Email
+  type: Textbox
+
+- name: ssh_passphrase
+  label: Ssh Passphrase
+  type: Textbox
+

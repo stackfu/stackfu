@@ -1,0 +1,76 @@
+# 
+# install_stackfu.sh
+# Sun Nov 22 20:46:43 -0200 2009
+#
+
+echo "export RACK_ENV=production" >> ~/.private_profile
+# echo "export PATH=`gem env|grep "EXECUTABLE DIRECTORY"|sed "s/  - EXECUTABLE DIRECTORY: //"`:\$PATH" >> ~/.private_profile
+
+export RACK_ENV=production
+# export PATH=`gem env|grep "EXECUTABLE DIRECTORY"|sed "s/  - EXECUTABLE DIRECTORY: //"`:$PATH
+
+mkdir -p /var
+
+gem install echoe 
+gem install rcov
+
+cd /var
+git clone git@github.com:fcoury/stackfu-core.git
+
+cd /var/stackfu-core
+rake install
+
+cd /var
+git clone git@github.com:fcoury/stackfu.git
+cd /var/stackfu
+rake install
+
+cd /var
+git clone git@github.com:fcoury/stackfu-api.git
+
+cd /var/stackfu-api
+rake install_dependencies
+
+passenger_version=`gem search -l passenger | cut -d ')' -f 1 - | cut -d '(' -f 2 -`
+
+echo "worker_processes  2;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    passenger_root /usr/lib/ruby/gems/1.8/gems/passenger-2.2.7;
+    passenger_ruby /usr/local/bin/ruby;
+
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    sendfile        on;
+
+    keepalive_timeout  65;
+
+    server {
+        listen       80;
+        server_name  api.stackfu.com;
+        root /var/stackfu-api/public;
+        passenger_enabled on;
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+}
+" > /opt/nginx/conf/nginx.conf
+
+/etc/init.d/nginx restart
+
+cd /var/stackfu-api
+gem install god
+god -c /var/stackfu-api/script/stackfu-api-resque.god --log /var/log/stackfu-queue.log
+
+echo "nohup gem server | /usr/bin/cronolog /var/log/gemserver.%Y-%m-%d.log 2>&1 &" > /etc/init.d/gemserver
+chmod +x /etc/init.d/gemserver
+
+#setsid bash -c "nohup /etc/init.d/gemserver < /dev/null &"

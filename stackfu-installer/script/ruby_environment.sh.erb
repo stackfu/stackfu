@@ -1,0 +1,20 @@
+# 
+# install_dotfiles.sh
+# Sun Nov 22 20:46:43 -0200 2009
+#
+
+apt-get install -y build-essential
+apt-get install -y ruby irb1.8 ruby1.8-dev libreadline-ruby1.8 libruby1.8 ruby1.8 irb libopenssl-ruby libopenssl-ruby1.8
+
+cd /usr/src
+wget http://rubyforge.org/frs/download.php/60718/rubygems-1.3.5.tgz
+tar xvzf rubygems-1.3.5.tgz
+cd rubygems-1.3.5
+sudo ruby setup.rb
+
+sudo ln -s /usr/bin/gem1.8 /usr/local/bin/gem
+sudo ln -s /usr/bin/ruby1.8 /usr/local/bin/ruby
+sudo ln -s /usr/bin/irb1.8 /usr/local/bin/irb
+
+gem install rake
+ln -s /usr/lib/ruby/1.8/bin/rake /usr/local/bin/rake

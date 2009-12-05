@@ -11,7 +11,8 @@ Echoe.new('stackfu', '0.1.0') do |p|
   p.email           = "felipe@stackfu.com"  
   p.ignore_pattern  = ["tmp/*", "script/*"]  
   p.dependencies = [
-    ['activesupport','>= 2.2.2'],
+    ['activeresource','>= 2.3.4'],
+    ['activesupport','>= 2.3.4'],
     ['rainbow', '>=1.0.4'],
     ['highline', '>=1.5.1'],
     ['httparty', '>=0.4.5']

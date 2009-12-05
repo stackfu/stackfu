@@ -1,6 +1,7 @@
 module StackFu
   class App
     include StackFu::Rendering
+    include StackFu::ApiHooks
     attr_accessor :args
   
     def initialize(args)
@@ -10,6 +11,8 @@ module StackFu
     def start
       welcome and return unless App.settings?
       $config = load_config
+      initialize_api($config)
+      
       execute
     end
   

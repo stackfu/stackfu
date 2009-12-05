@@ -61,6 +61,16 @@ class TestCommand < Test::Unit::TestCase
     }.should raise_error(Exceptions::InvalidCommand, /requires 2 parameters/)
   end
   
+  should "inflex the requirement error" do
+    class NewCmd < Command
+      subcommand :move, :required_parameters => [:server_name]
+    end
+
+    lambda { 
+      cmd = NewCmd.new(["move"]) 
+    }.should raise_error(Exceptions::InvalidCommand, /requires 1 parameter\./)
+  end
+  
   should "allow subcommand aliases" do
     class Cmd < Command
       alias_subcommand :list => :default

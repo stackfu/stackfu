@@ -82,7 +82,7 @@ module StackFu
       if (req = rules[:required_parameters])
         if parameters.size < req.size
           error = self.class.error_for(:missing_params)
-          error ||= "The command #{command.to_s.foreground(:yellow)} #{subcommand.to_s.foreground(:yellow)} requires #{req.size} parameters.\nUsage: stackfu #{command} #{subcommand} #{req.to_params}" 
+          error ||= "The command #{command.to_s.foreground(:yellow)} #{subcommand.to_s.foreground(:yellow)} requires #{req.size} parameter#{req.size > 1 ? "s" : ""}.\nUsage: stackfu #{command} #{subcommand} #{req.to_params}" 
           @errors << error
         end
       end

@@ -190,7 +190,7 @@ EOS
           stack.validations.first.attributes['type'].should == "directory"
           stack.validations.first.data.should == "/etc/apache2"
 
-          stack.executions.first.data.should =~ /Echoes a variable/
+          stack.executions.first.script.should =~ /Echoes a variable/
           true
         }.returns(true)
       

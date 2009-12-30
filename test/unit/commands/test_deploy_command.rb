@@ -10,6 +10,72 @@ class TestDeployCommand < Test::Unit::TestCase
     stdout.should =~ /You have to tell what you want to deploy \(a stack or a plugin\) and to which server/
   end
   
+  should "show an error when the wrong item is set to deploy" do
+    command "deploy something"
+    stdout.should_not =~ /Command deploy is invalid/
+    stdout.should =~ /You have to tell what you want to deploy \(a stack or a plugin\) and to which server/
+  end
+  
+  # === PLUGIN DEPLOYMENT ===
+  
+  should "show an error when the plugin is not found" do
+    with_plugins("empty", "plugin%5Bname%5D=my_plugin")
+    command "deploy plugin my_plugin server"
+    stdout.should =~ /Plugin 'my_plugin' was not found/
+  end
+  
+  should "show an error when plugin found but server not found" do
+    with_plugins("by_name", "plugin%5Bname%5D=my_plugin")
+    with_server_list("empty", "server%5Bhostname%5D=slicey")
+    command "deploy plugin my_plugin slicey"
+    stdout.should =~ /Server 'slicey' was not found/
+  end
+  
+  should "tell the user if there's a problem submitting the deployment of a plugin" do
+    with_plugins("by_name", "plugin%5Bname%5D=my_plugin")
+    with_server_list("by_name", "server%5Bhostname%5D=slicey")
+    with_new_deployment("error")
+
+    when_asked "   Nome: ", :answer => "Felipe"
+    when_asked "  Idade: ", :answer => "31"
+
+    command "deploy plugin my_plugin slicey"
+    stdout.should =~ /There was a problem submitting your deployment: This is an error/
+  end
+
+  should "submit the deployment when plugin and server exists" do
+    with_plugins("by_name", "plugin%5Bname%5D=my_plugin")
+    with_server_list("by_name", "server%5Bhostname%5D=slicey")
+    with_new_deployment
+    
+    when_asked "   Nome: ", :answer => "Felipe"
+    when_asked "  Idade: ", :answer => "31"
+    
+    uri = StackFu::API.gsub(/api/, "flipper:abc123@api")
+    FakeWeb.register_uri(:get, "#{uri}/deployments/4b0b3421e1054e3102000001.json", 
+      :response => fixture("deployments"))
+
+    FakeWeb.register_uri(:get, "#{uri}/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true&from=", 
+      :response => fixture("logs"))
+
+    FakeWeb.register_uri(:get, "#{uri}/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true", 
+      :response => fixture("logs"))
+
+    FakeWeb.register_uri(:get,
+      "#{uri}/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true&from=4b0b34c9e1054e3104000109", 
+      :response => fixture("logs_partial"))
+    
+    command "deploy plugin my_plugin slicey"
+
+    stdout.should =~ /Preparing:/
+    stdout.should =~ /my_plugin/
+    stdout.should =~ /This will deploy my plugin/
+    stdout.should =~ /Enqueued for execution \(deployment id 4b0b3421e1054e3102000001 at Tue Nov 24 01:17:25 UTC 2009\)/
+    stdout.should_not =~ /Please review the configuration for your deployment:/
+  end
+  
+  # === STACK DEPLOYMENT ===
+  
   should "show an error when the stack is not found" do
     with_stacks("empty", "stack%5Bname%5D=my_stack")
     command "deploy stack my_stack server"
@@ -56,24 +122,24 @@ class TestDeployCommand < Test::Unit::TestCase
       "#{uri}/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true&from=4b0b34c9e1054e3104000109", 
       :response => fixture("logs_partial"))
       
-    require 'net/http'
-    require 'uri'
-    
-    Net::HTTP.start('api.stackfu.com') {|http|
-      req = Net::HTTP::Get.new('/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true')
-      req.basic_auth 'flipper', 'abc123'
-      response = http.request(req)
-      # ppd JSON.load(response.body)
-    }
-    
-    Net::HTTP.start('api.stackfu.com') {|http|
-      req = Net::HTTP::Get.new('/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true&from=4b0b34c9e1054e3104000109')
-      req.basic_auth 'flipper', 'abc123'
-      response = http.request(req)
-      # d response.body
-      # d JSON.load(response.body)["id"]
-      # d JSON.load(response.body)["log"]
-    }
+    # require 'net/http'
+    # require 'uri'
+    # 
+    # Net::HTTP.start('api.stackfu.com') {|http|
+    #   req = Net::HTTP::Get.new('/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true')
+    #   req.basic_auth 'flipper', 'abc123'
+    #   response = http.request(req)
+    #   # ppd JSON.load(response.body)
+    # }
+    # 
+    # Net::HTTP.start('api.stackfu.com') {|http|
+    #   req = Net::HTTP::Get.new('/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true&from=4b0b34c9e1054e3104000109')
+    #   req.basic_auth 'flipper', 'abc123'
+    #   response = http.request(req)
+    #   # d response.body
+    #   # d JSON.load(response.body)["id"]
+    #   # d JSON.load(response.body)["log"]
+    # }
     
     when_asked "   Nome: ", :answer => "Felipe"
     when_asked "  Idade: ", :answer => "31"
@@ -105,12 +171,13 @@ class TestDeployCommand < Test::Unit::TestCase
     ApiHooks::Stack.expects(:find).returns([stack])
     
     server = mock("server")
+    server.expects(:id).twice.returns(123)
     ApiHooks::Server.expects(:find).returns([server])
     
     deployment = mock("deployment")
     deployment.expects(:save).returns(true)
     
-    ApiHooks::Deployment.expects(:new).with(:stack => stack, :server => server, :params => {"name" => "Felipe"}).returns(deployment)
+    ApiHooks::Deployment.expects(:new).with(:stack => stack, :server_id => server.id, :params => {"name" => "Felipe"}).returns(deployment)
 
     when_asked "  Nome: ", :answer => "Felipe"
     

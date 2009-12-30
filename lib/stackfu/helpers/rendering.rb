@@ -30,10 +30,10 @@ module StackFu
       params
     end
   
-    def render_stack(params, stack, options)
-      max_length = stack.controls.map { |c| c.label.size }.max
+    def render_target(params, target, options)
+      max_length = target.controls.map { |c| c.label.size }.max
     
-      stack.controls.each do |c|
+      target.controls.each do |c|
         unless params[c.name]
           case c._type
           when "Textbox"

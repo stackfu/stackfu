@@ -69,6 +69,10 @@ module Fixtures
     register :post, :path => "deployments", :fixture => "deployment_add", :kind => kind
   end
 
+  def with_new_plugin_deployment(kind=nil)
+    register :post, :path => "deployments", :fixture => "plugin_deployment_add", :kind => kind
+  end
+
   private
 
   def register(method, options) # path, kind, fixture=path)

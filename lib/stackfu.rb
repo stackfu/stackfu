@@ -3,8 +3,8 @@ require 'rubygems'
 $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 
-gem 'activesupport', '>=2.3.4'
-gem 'activeresource', '>=2.3.4'
+gem 'activesupport', '>=2.3.5'
+gem 'activeresource', '>=2.3.5'
 gem 'rainbow', '>=1.0.4'
 gem 'highline', '>=1.5.1'
 gem 'httparty', '>=0.4.5'
@@ -55,10 +55,11 @@ module StackFu
   include StackFu::OperatingSystems
 
   module Exceptions
+    class UnknownCommand < StandardError; end
     class InvalidCommand < StandardError; end
+    class InvalidSubcommand < StandardError; end
     class InvalidParameter < StandardError; end
   end
-  
 end
 
 OpenStruct.__send__(:define_method, :id) { @table[:id] || self.object_id }

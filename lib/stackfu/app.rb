@@ -25,17 +25,25 @@ module StackFu
         error "Could not connect to StackFu server.",
           "Please check if your internet connection is active. If you think this problem is not in your end, please report it by emailing support@stackfu.com or try again in a few minutes."
         raise if $dev
+
       rescue ActiveResource::UnauthorizedAccess
         error "Access denied for user '#{$config[:login]}'",
           "Please check the credentials provided on file #{ENV['HOME']}/.stackfu and run 'stackfu config' for changing it."
         raise if $dev
+
       rescue ActiveResource::ResourceNotFound
         error "There was an internal error contacting StackFu backend.",
           "Please report this problem at support@stackfu.com or try again in a few minutes."
         raise if $dev
+
+      rescue Exceptions::UnknownCommand
+        error "Command #{command} does not exist", "Try using 'stackfu help' for a summary of available commands."
+        
       rescue Exceptions::InvalidCommand
-        error "Command #{command} is invalid", "Try using 'stackfu help' for a summary of available commands."
-        puts "Error: #{$!.message}"
+        error "Command #{command} is invalid", $!.message
+        
+      rescue Exceptions::InvalidSubcommand
+        error "Invalid usage for command #{command}", $!.message
       end
     end
   

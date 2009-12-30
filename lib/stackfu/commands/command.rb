@@ -10,8 +10,14 @@ module StackFu
     
       def create(command, args=[])
         command ||= "help"
-        klass = aliases[command.to_sym]||StackFu.const_get("#{command.camelize}Command")
+        klass = aliases[command.to_sym]||command_for(command)
         klass.new(args)
+      end
+      
+      def command_for(command)
+        StackFu.const_get("#{command.camelize}Command")
+      rescue NameError
+        raise Exceptions::UnknownCommand
       end
 
       def inherited(kls)
@@ -65,7 +71,7 @@ module StackFu
       unless self.respond_to?(subcommand)
         error = self.class.error_for(:missing_subcommand)
         error ||= "Command #{command} doesn't have a subcommand \"#{subcommand}\". Try \"stackfu #{command} help\" for more information."
-        raise Exceptions::InvalidCommand, error % [subcommand]
+        raise Exceptions::InvalidSubcommand, error % [subcommand]
       end
       send subcommand, parameters, options
     end

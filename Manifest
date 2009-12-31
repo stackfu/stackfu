@@ -45,6 +45,7 @@ test/fixtures/logs
 test/fixtures/logs_partial
 test/fixtures/plugin_add
 test/fixtures/plugin_add_error
+test/fixtures/plugin_deployment_add
 test/fixtures/plugin_not_found
 test/fixtures/plugin_unauthorized
 test/fixtures/plugins

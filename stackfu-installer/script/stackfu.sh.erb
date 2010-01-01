@@ -32,6 +32,24 @@ git clone git@github.com:fcoury/stackfu-api.git
 cd /var/stackfu-api
 rake install_dependencies
 
+cd /var
+git clone git@github.com:fcoury/stackup.git
+
+cd /tmp
+svn co https://jsoncpp.svn.sourceforge.net/svnroot/jsoncpp jsoncpp 
+
+cd /tmp/jsoncpp/trunk/jsoncpp
+wget http://sourceforge.net/projects/scons/files/scons-local/1.2.0.d20090919/scons-local-1.2.0.d20090919.tar.gz/download
+tar vzxf scons-local-1.2.0.d20090919.tar.gz
+python scons.py platform=linux-gcc check
+cp libs/linux-gcc-4.3.3/* /usr/lib
+
+mkdir -p /var/stackfu-stackup-dist
+
+cd /var/stackup
+apt-get install libvurl4-openssl-dev
+bash ./scripts/deploy
+
 passenger_version=`gem search -l passenger | cut -d ')' -f 1 - | cut -d '(' -f 2 -`
 
 echo "worker_processes  2;
@@ -57,6 +75,18 @@ http {
         root /var/stackfu-api/public;
         passenger_enabled on;
 
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+    
+    server {
+        listen       80;
+        server_name  up.stackfu.com;
+        root /var/stackfu-stackup-dist;
+        passenger_enabled on;
+    
         error_page   500 502 503 504  /50x.html;
         location = /50x.html {
             root   html;

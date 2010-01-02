@@ -16,35 +16,30 @@ gem install rcov
 gem install racksh
 
 cd /var
+git clone git@github.com:fcoury/stackfu.git
+git clone git@github.com:fcoury/stackfu-web.git
+git clone git@github.com:fcoury/stackfu-api.git
 git clone git@github.com:fcoury/stackfu-core.git
+git clone git@github.com:fcoury/stackup.git
 
 cd /var/stackfu-core
 rake install
 
-cd /var
-git clone git@github.com:fcoury/stackfu.git
 cd /var/stackfu
 rake install
-
-cd /var
-git clone git@github.com:fcoury/stackfu-api.git
 
 cd /var/stackfu-api
 rake install_dependencies
 
-cd /var
-git clone git@github.com:fcoury/stackup.git
-
 cd /tmp
 svn co https://jsoncpp.svn.sourceforge.net/svnroot/jsoncpp jsoncpp 
+mkdir -p /var/stackfu-stackup-dist
 
 cd /tmp/jsoncpp/trunk/jsoncpp
 wget http://sourceforge.net/projects/scons/files/scons-local/1.2.0.d20090919/scons-local-1.2.0.d20090919.tar.gz/download
 tar vzxf scons-local-1.2.0.d20090919.tar.gz
 python scons.py platform=linux-gcc check
 cp libs/linux-gcc-4.3.3/* /usr/lib
-
-mkdir -p /var/stackfu-stackup-dist
 
 cd /var/stackup
 apt-get install libvurl4-openssl-dev
@@ -68,6 +63,18 @@ http {
     sendfile        on;
 
     keepalive_timeout  65;
+
+    server {
+        listen       80;
+        server_name  stackfu.com;
+        root /var/stackfu-web/public;
+        passenger_enabled on;
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
 
     server {
         listen       80;

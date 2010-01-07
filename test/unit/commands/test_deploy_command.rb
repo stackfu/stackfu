@@ -38,9 +38,25 @@ class TestDeployCommand < Test::Unit::TestCase
 
     when_asked "   Nome: ", :answer => "Felipe"
     when_asked "  Idade: ", :answer => "31"
+    
+    agree_with "Continue with plugin installation?\n"
 
     command "deploy plugin my_plugin slicey"
     stdout.should =~ /There was a problem submitting your deployment: This is an error/
+  end
+  
+  should "stop deploying if user disagree of continueing" do
+    with_plugins("by_name", "plugin%5Bname%5D=my_plugin")
+    with_server_list("by_name", "server%5Bhostname%5D=slicey")
+    with_new_deployment("error")
+
+    when_asked "   Nome: ", :answer => "Felipe"
+    when_asked "  Idade: ", :answer => "31"
+    
+    disagree_of "Continue with plugin installation?\n"
+
+    command "deploy plugin my_plugin slicey"
+    stdout.should =~ /Aborted./
   end
 
   should "submit the deployment when plugin and server exists" do
@@ -50,6 +66,8 @@ class TestDeployCommand < Test::Unit::TestCase
     
     when_asked "   Nome: ", :answer => "Felipe"
     when_asked "  Idade: ", :answer => "31"
+    
+    agree_with "Continue with plugin installation?\n"
     
     uri = StackFu::API.gsub(/api/, "flipper:abc123@api")
     FakeWeb.register_uri(:get, "#{uri}/deployments/4b0b3421e1054e3102000001.json", 
@@ -73,6 +91,43 @@ class TestDeployCommand < Test::Unit::TestCase
     stdout.should =~ /Enqueued for execution \(deployment id 4b0b3421e1054e3102000001 at Tue Nov 24 01:17:25 UTC 2009\)/
     stdout.should_not =~ /Please review the configuration for your deployment:/
   end
+  
+  should "indicate an error ocurred" # do
+    # with_plugins("by_name", "plugin%5Bname%5D=my_plugin")
+    # with_server_list("by_name", "server%5Bhostname%5D=slicey")
+    # with_new_deployment
+    # 
+    # when_asked "   Nome: ", :answer => "Felipe"
+    # when_asked "  Idade: ", :answer => "31"
+    # 
+    # agree_with "Continue with plugin installation?\n"
+    # 
+    # uri = StackFu::API.gsub(/api/, "flipper:abc123@api")
+    # FakeWeb.register_uri(:get, "#{uri}/deployments/4b0b3421e1054e3102000001.json", 
+    #   :response => fixture("deployments"))
+    # 
+    # FakeWeb.register_uri(:get, "#{uri}/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true&from=", 
+    #   :response => fixture("logs"))
+    # 
+    # FakeWeb.register_uri(:get, "#{uri}/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true", 
+    #   :response => fixture("logs"))
+    # 
+    # FakeWeb.register_uri(:get,
+    #   "#{uri}/deployments/4b0b3421e1054e3102000001/logs.json?formatted=true&from=4b0b34c9e1054e3104000109", 
+    #   :response => fixture("logs_partial"))
+    # 
+    # d "\n--start--"
+    # command "deploy plugin my_plugin slicey"
+    # d "--end--\n"
+    # 
+    # stdout.should =~ /Preparing:/
+    # stdout.should =~ /my_plugin/
+    # stdout.should =~ /This will deploy my plugin/
+    # stdout.should =~ /Enqueued for execution \(deployment id 4b0b3421e1054e3102000001 at Tue Nov 24 01:17:25 UTC 2009\)/
+    # stdout.should =~ /Please review the configuration for your deployment:/
+    # stdout.should =~ /Nome: Felipe/
+    # stdout.should =~ /Idade: Felipe/
+  #end
   
   # === STACK DEPLOYMENT ===
   

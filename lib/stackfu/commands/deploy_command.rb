@@ -78,11 +78,15 @@ module StackFu
         puts ""
       end
     
-      if stack
-        unless warning("This will destroy current contents of your server. Are you sure?\n")
-          puts "Aborted."
-          return false
-        end
+      continue = if stack
+        warning "This will destroy current contents of your server. Are you sure?\n"
+      else
+        agree "Continue with plugin installation?\n"
+      end
+      
+      unless continue
+        puts "Aborted."
+        return false
       end
     
       item = target if stack

@@ -3,11 +3,11 @@ module StackFu
     include ApiHooks
 
     error_messages :missing_subcommand => "You have to tell what you want to dump: a stack or a plugin"
-    subcommand :stack, :required_parameters => [:stack_name]
+    subcommand :plugin, :required_parameters => [:plugin_name]
     
-    def stack(parameters, options)
+    def plugin(parameters, options)
       stack_name = parameters[0]
-      stack = spinner { Stack.find(:all, :params => { :stack => { :name => stack_name } }).first }
+      stack = spinner { Plugin.find(stack_name) }
       
       if stack
         if directory?(stack_name) 
@@ -21,33 +21,49 @@ module StackFu
         create_file "#{stack_name}/stack.yml", {
           "type" => "stack",
           "name" => stack.name,
-          "description" => stack.description,
-          "operating_system" => stack.operating_system.to_s
+          "description" => stack.respond_to?(:description) ? stack.description : ""
         }.to_yaml
         
         create_folder "#{stack_name}/config"
         
-        controls = map stack.controls, "controls" do |c|
-          { "name"  => c.name,
-            "label" => c.label,
-            "type"  => c._type }
+        if stack.respond_to?(:controls)
+          controls = map stack.controls, "controls" do |c|
+            { "name"  => c.name,
+              "label" => c.label,
+              "type"  => c._type }
+          end
+        else
+          controls = []
         end
         
-        requirements = map stack.requirements, "requirements" do |req|
-          { "data"  => req.data,
-            "error" => req.error,
-            "type"  => req._type }
+        if stack.respond_to?(:requirements)
+          requirements = map stack.requirements, "requirements" do |req|
+            { "data"  => req.data,
+              "error" => req.error,
+              "type"  => req._type }
+          end
+        else
+          requirements = []
         end
         
-        executions = map stack.executions, "scripts" do |exec|
-          { "description" => exec.description,
-            "file"        => exec.description.downcase.gsub(" ", "_") }
+        if stack.respond_to?(:executions)
+          executions = map stack.executions, "scripts" do |exec|
+            { "description" => exec.description,
+              "file"        => exec.description.downcase.gsub(" ", "_") }
+          end
+        else
+          executions = []
         end
         
-        validations = map stack.validations, "validations" do |val|
-          { "data"  => val.data,
-            "error" => val.error,
-            "type"  => val._type }
+        
+        if stack.respond_to?(:validations)
+          validations = map stack.validations, "validations" do |val|
+            { "data"  => val.data,
+              "error" => val.error,
+              "type"  => val._type }
+          end
+        else
+          validations = []
         end
         
         create_file "#{stack_name}/config/01-controls.yml", controls
@@ -57,7 +73,7 @@ module StackFu
         
         create_folder "#{stack_name}/script"
         stack.executions.each do |script|
-          create_file "#{stack_name}/script/#{script.description.downcase.gsub(" ", "_")}.sh.erb", script.data
+          create_file "#{stack_name}/script/#{script.description.downcase.gsub(" ", "_")}.sh.erb", script.script
         end
         
         puts "Stack #{stack_name} dumped successfully..."

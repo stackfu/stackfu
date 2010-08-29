@@ -1,16 +1,21 @@
 module StackFu
   module ApiHooks
-    class Server < ActiveResource::Base; end
-    class User < ActiveResource::Base; end
-    class Stack < ActiveResource::Base; end
-    class Plugin < ActiveResource::Base; end
-    class Provider < ActiveResource::Base; end
-    class Deployment < ActiveResource::Base; end
+    class Resource < ActiveResource::Base
+      self.format = :json
+    end
+    
+    class Server < Resource; end
+    class User < Resource; end
+    class Stack < Resource; end
+    class Plugin < Resource; end
+    class Provider < Resource; end
+    class Deployment < Resource; end
   
     def initialize_api(config)
       [Server, User, Stack, Plugin, Provider, Deployment].each do |model_class|
-        model_class.format = :json
-        model_class.site = StackFu::API.gsub(/api/, "#{config[:login]}:#{$config[:token]}@api") + "/"
+        model_class.user = $config[:token]
+        model_class.password = "X"
+        model_class.site = StackFu::API
       end
     end
   end

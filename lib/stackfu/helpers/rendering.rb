@@ -107,7 +107,16 @@ module StackFu
     
       display.each_with_index do |column, i|
         max_value_size = collection.map do |item|
-          value = block_given? ? yield(item)[i] : item.send(column)
+          if block_given?
+            value = yield(item)[i]
+          else
+            if item.respond_to?(column)
+              value = item.send(column)
+            else
+              value = ""
+            end
+          end
+          
           value.to_s.size
         end.max
       
@@ -150,7 +159,11 @@ module StackFu
             value = values[idx]
             idx += 1
           else
-            value = item.send(col[:name])
+            if item.respond_to?(col[:name])
+              value = item.send(col[:name])
+            else
+              value = ""
+            end
           end
         
           just_method = value.is_a?(Numeric) ? :rjust : :ljust

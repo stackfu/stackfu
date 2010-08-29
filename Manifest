@@ -31,6 +31,7 @@ stackfu-installer/script/resque_installation.sh.erb
 stackfu-installer/script/ruby_environment.sh.erb
 stackfu-installer/script/stackfu.sh.erb
 stackfu-installer/stack.yml
+stackfu.gemspec
 templates/01-controls.yml.erb
 templates/02-requirements.yml.erb
 templates/03-scripts.yml.erb
@@ -96,6 +97,7 @@ test/fixtures/stacks_with_controls
 test/fixtures/users
 test/fixtures/users_no_credentials
 test/fixtures/users_update
+test/stack.yml
 test/support/custom_matchers.rb
 test/support/fixtures.rb
 test/support/io_stub.rb

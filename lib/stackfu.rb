@@ -19,6 +19,7 @@ end
 require 'rainbow'
 require 'highline/import'
 require 'httparty'
+require 'fileutils'
 
 begin
   require 'Win32/Console/ANSI' if RUBY_PLATFORM =~ /mswin/
@@ -49,7 +50,7 @@ require "#{dir}/commands/dump_command"
 
 module StackFu
   VERSION = '0.0.1'
-  API = "http://api.stackfu.com"
+  API = "http://localhost:3000"
   CONFIG_FILE = "#{ENV['HOME']}/.stackfu"
 
   include StackFu::OperatingSystems
@@ -85,3 +86,16 @@ class String
   end
 end
 
+# class ActiveResource::Connection
+#   # Creates new Net::HTTP instance for communication with
+#   # remote service and resources.
+#   def http
+#     http = Net::HTTP.new(@site.host, @site.port)
+#     http.use_ssl = @site.is_a?(URI::HTTPS)
+#     http.verify_mode = OpenSSL::SSL::VERIFY_NONE if http.use_ssl
+#     http.read_timeout = @timeout if @timeout
+#     #Here's the addition that allows you to see the output
+#     http.set_debug_output $stderr
+#     return http
+#   end
+# end

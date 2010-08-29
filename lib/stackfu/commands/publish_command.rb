@@ -52,8 +52,11 @@ module StackFu
         end
         
         item_class = ApiHooks.const_get("#{what.to_s.classify}")
+        item_class.format = :json
 
-        stacks = item_class.find(:all, :params => { what => { :name => stack_spec["name"] } })
+        stacks = item_class.find(:all) || []
+        stacks = stacks.select { |s| s.name == stack_spec["name"] }
+        
         if stacks.any? 
           unless options[:update]
             if agree("You already have a #{what} named #{stack_spec["name"]}. Do you want to update it?")
@@ -68,7 +71,7 @@ module StackFu
         
           stack = stacks.first
           begin
-            item_class.delete(stack.id)
+            item_class.delete(stack.name)
           rescue ActiveResource::ResourceNotFound 
             puts "There was a problem updating your #{what}. Please report this problem at support@stackfu.com or try again in a few minutes."
             return

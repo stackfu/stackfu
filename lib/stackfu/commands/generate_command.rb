@@ -92,7 +92,7 @@ module StackFu
     def create(d, f=nil, contents=nil)
       unless File.directory?(d)
         puts "\tcreate  #{d}/"
-        FileUtils.mkdir_p(d)
+        ::FileUtils.mkdir_p(d)
       end
 
       if f.present?

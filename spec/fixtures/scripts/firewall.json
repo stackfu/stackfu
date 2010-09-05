@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK 
+Etag: "b9e3a93cd52f06d0b7cf83233796e8a6"
+Connection: Keep-Alive
+Content-Type: application/json; charset=utf-8
+Date: Sat, 04 Sep 2010 16:59:55 GMT
+Server: WEBrick/1.3.1 (Ruby/1.8.7/2009-12-24)
+X-Runtime: 0.323121
+Content-Length: 1522
+Cache-Control: max-age=0, private, must-revalidate
+Set-Cookie: _stackfu_session=BAh7ByIPc2Vzc2lvbl9pZCIlMThjNWIzN2IyNmVmYzIxZWQ1NjE2MDY2ODQ5NWE2OTMiGXdhcmRlbi51c2VyLnVzZXIua2V5WwciCVVzZXJvOhNCU09OOjpPYmplY3RJRAY6CkBkYXRhWxFpUWkBgml%2BaXNpAdRpAYlpAehpM2kBwWkAaQBpCA%3D%3D--cf9903a5a7a8da8f8ca044431cb5a249b9e2a60e; path=/; HttpOnly
+
+{"slug":"firewall","name":"firewall","controls":[{"name":"Ports","label":"Ports","_id":"4c82796ed489e82ec1000005","_type":"Textbox","type":"Textbox","hint":"separate by comma's"}],"created_at":"2010-09-04T13:53:02-03:00","updated_at":"2010-09-04T13:53:02-03:00","_id":"4c82796ed489e82ec1000008","validations":[{"body":"test -x ufw","_id":"4c82796ed489e82ec1000002","_type":"ExecutableExists","params":{"data":"ufw"},"description":"File ufw exists and is executable"}],"user_id":"4c82796ed489e82ec1000003","requirements":[{"body":"test -x apt-get","_id":"4c82796ed489e82ec1000001","_type":"ExecutableExists","params":{"data":"apt-get"},"description":"File apt-get exists and is executable"}],"executions":[{"body":"      # \n      # configure_ufw.sh\n      # Tue Dec 01 15:06:48 -0200 2009\n      #\n\n      apt-get update\n      apt-get install -y ufw\n","_id":"4c82796ed489e82ec1000006","description":"Install Ufw","watching_user_ids":[]},{"body":"      # \n      # install_ufw.sh\n      # Tue Dec 01 15:06:48 -0200 2009\n      #\n\n      ufw default deny\n      <% ports.split(\",\").each do |port| %>\n        ufw allow <%= port %> \n      <% end %>\n","_id":"4c82796ed489e82ec1000007","description":"Configure Ufw","watching_user_ids":[]}],"description":"Set up a firewall for your server to improve security.\n  Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n  Praesent eget erat libero, id malesuada tortor.\n  Donec pharetra sapien et nulla ultricies ac pharetra neque vulputate.","watching_user_ids":[]}

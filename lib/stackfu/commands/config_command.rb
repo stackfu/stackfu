@@ -1,4 +1,4 @@
-module StackFu
+module StackFu::Commands
   class ConfigCommand < Command
     include StackFu::ApiHooks
     include StackFu::ProvidersCredentials

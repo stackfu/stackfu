@@ -1,0 +1,11 @@
+HTTP/1.1 404 Not Found 
+Connection: Keep-Alive
+Content-Type: application/json; charset=utf-8
+Date: Fri, 03 Sep 2010 18:30:56 GMT
+Server: WEBrick/1.3.1 (Ruby/1.8.7/2009-12-24)
+X-Runtime: 0.447237
+Content-Length: 9
+Cache-Control: no-cache
+Set-Cookie: _stackfu_session=BAh7ByIPc2Vzc2lvbl9pZCIlYjMyODkwZDM4MWQ2YjgxYzQxN2ZmZTJlMzhiNmRhM2EiGXdhcmRlbi51c2VyLnVzZXIua2V5WwciCVVzZXJvOhNCU09OOjpPYmplY3RJRAY6CkBkYXRhWxFpUWkBf2kB0mkKaQHUaQGJaQHoaQHQaQGBaQBpAGkI--1cf1c7a6d92f4662e81d8261dd2ed3719ce310ee; path=/; HttpOnly
+
+Not found

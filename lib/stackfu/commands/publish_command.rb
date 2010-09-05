@@ -1,6 +1,6 @@
-module StackFu
+module StackFu::Commands
   class PublishCommand < Command
-    include ApiHooks
+    include StackFu::ApiHooks
     aliases :pub
     
     def stack?

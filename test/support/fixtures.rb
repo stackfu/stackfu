@@ -81,7 +81,7 @@ module Fixtures
     fixture = options[:fixture] || options[:path]
     params = options[:params] ? "?#{options[:params]}" : ""
     
-    # d "Registering: #{method} #{ApiUrlPrefix}/#{path}.json#{params} => #{fixture}#{kind}"
+    d "Registering: #{method} #{ApiUrlPrefix}/#{path}.json#{params} => #{fixture}#{kind}"
     FakeWeb.register_uri(method, "#{ApiUrlPrefix}/#{path}.json#{params}", 
       :response => fixture("#{fixture}#{kind}"))
   end

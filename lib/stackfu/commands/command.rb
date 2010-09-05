@@ -1,4 +1,4 @@
-module StackFu
+module StackFu::Commands
   class Command
     include StackFu::OperatingSystems
     include StackFu::Rendering
@@ -15,7 +15,7 @@ module StackFu
       end
       
       def command_for(command)
-        StackFu.const_get("#{command.camelize}Command")
+        StackFu::Commands.const_get("#{command.camelize}Command")
       rescue NameError
         raise Exceptions::UnknownCommand
       end

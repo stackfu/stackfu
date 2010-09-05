@@ -7,12 +7,12 @@ module StackFu
     class Server < Resource; end
     class User < Resource; end
     class Stack < Resource; end
-    class Plugin < Resource; end
+    class Script < Resource; end
     class Provider < Resource; end
     class Deployment < Resource; end
   
     def initialize_api(config)
-      [Server, User, Stack, Plugin, Provider, Deployment].each do |model_class|
+      [Server, User, Stack, Script, Provider, Deployment].each do |model_class|
         model_class.user = $config[:token]
         model_class.password = "X"
         model_class.site = StackFu::API

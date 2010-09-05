@@ -1,6 +1,6 @@
-module StackFu
+module StackFu::Commands
   class DumpCommand < Command
-    include ApiHooks
+    include StackFu::ApiHooks
 
     error_messages :missing_subcommand => "You have to tell what you want to dump: a stack or a plugin"
     subcommand :plugin, :required_parameters => [:plugin_name]

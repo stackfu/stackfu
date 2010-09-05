@@ -1,4 +1,4 @@
-module StackFu
+module StackFu::Commands
   class HelpCommand < Command
     def default(parameters, options)
       stackfu = "stackfu".foreground(:green).bright

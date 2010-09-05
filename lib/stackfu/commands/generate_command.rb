@@ -1,7 +1,7 @@
 require 'erb'
 require 'ostruct'
 
-module StackFu
+module StackFu::Commands
   class GenerateCommand < Command
     aliases :create
     subcommand :stack, :required_parameters => [:stack_name]

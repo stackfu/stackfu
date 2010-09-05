@@ -19,7 +19,7 @@ module StackFu
     def execute
       begin
         command = @args.delete_at(0)
-        cmd = Command.create(command, @args)
+        cmd = Commands::Command.create(command, @args)
         cmd.run
       rescue Errno::ECONNREFUSED
         error "Could not connect to StackFu server.",
@@ -36,13 +36,13 @@ module StackFu
           "Please report this problem at support@stackfu.com or try again in a few minutes."
         raise if $dev
 
-      rescue Exceptions::UnknownCommand
+      rescue Commands::Exceptions::UnknownCommand
         error "Command #{command} does not exist", "Try using 'stackfu help' for a summary of available commands."
         
-      rescue Exceptions::InvalidCommand
+      rescue Commands::Exceptions::InvalidCommand
         error "Command #{command} is invalid", $!.message
         
-      rescue Exceptions::InvalidSubcommand
+      rescue Commands::Exceptions::InvalidSubcommand
         error "Invalid usage for command #{command}", $!.message
       end
     end

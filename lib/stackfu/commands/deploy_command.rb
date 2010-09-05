@@ -1,23 +1,14 @@
-module StackFu
+module StackFu::Commands
   class DeployCommand < Command
-    include ApiHooks
+    include StackFu::ApiHooks
   
-    error_messages :missing_subcommand => "You have to tell what you want to deploy (a stack or a plugin) and to which server."
+    error_messages :missing_subcommand => "You have to tell what you want to deploy and to which server."
 
-    subcommand :plugin, :required_parameters => [:plugin_name, :server]
-    subcommand :stack,  :required_parameters => [:stack_name, :server]
+    subcommand :script, :required_parameters => [:plugin_name, :server]
 
-    def plugin(parameters, options)
-      execute "plugin", parameters, options, false do |target|
+    def script(parameters, options)
+      execute "script", parameters, options, false do |target|
         puts "*** Preparing: #{target.name.foreground(:yellow).bright}"
-        puts "    #{target.description}"
-        puts ""
-      end
-    end
-    
-    def stack(parameters, options)
-      execute "stack", parameters, options, true do |target|
-        puts "*** Deploying: #{target.name.foreground(:yellow).bright} (based on #{os_name(target.operating_system.to_sym).foreground(:yellow)})"
         puts "    #{target.description}"
         puts ""
       end
@@ -30,25 +21,18 @@ module StackFu
       server_name = parameters[1]      
       
       target_class = StackFu::ApiHooks.const_get(target.capitalize)
-      
-      targets = target_class.find(:all, :params => { target.to_sym => { :name => target_name } })
-      unless targets.any?
+      target = target_class.find(target_name)
+
+      unless target
         error "#{target.capitalize} '#{target_name}' was not found"
         return
       end
       
-      server = Server.find(:all, :params => { :server => { :hostname => server_name } })
-      unless server.any?
-        error "Server '#{server_name}' was not found.",
-          "You can add servers 'stackfu server add' or list your current servers with 'stackfu servers'."
-        return
-      end
-      
-      return targets.first, server
+      return target, server_name
     end
     
     def execute(target_name, parameters, options, stack)
-      target, server = extract_settings(target_name)
+      target, server_id = extract_settings(target_name)
       return unless target
       
       yield target
@@ -78,31 +62,15 @@ module StackFu
         puts ""
       end
     
-      continue = if stack
-        warning "This will destroy current contents of your server. Are you sure?\n"
-      else
-        agree "Continue with plugin installation?\n"
-      end
-      
-      unless continue
+      unless agree "Continue with script installation?\n"
         puts "Aborted."
         return false
       end
-    
-      item = target if stack
-      hash = { :stack => item, :server_id => server.first.id, :params => params }
       
-      unless stack
-        hash[:plugin_ids] = [target.id]
-      end
+      server = Server.find(server_id)
+      server.id = server.slug
+      deployment = server.post(:deploy, {}, { :id => server_id, :script_id => target.slug, :params => params }.to_json)
       
-      deployment = Deployment.new(hash)
-      
-      unless deployment.save
-        error "There was a problem submitting your deployment: #{deployment.errors.full_messages.to_s}"
-        return
-      end
-    
       if options[:"no-follow"]
         puts "Your deployment have been submitted"
         return 
@@ -110,22 +78,22 @@ module StackFu
     
       verbose = options[:verbose]
     
-      from = nil
-      while true
-        opts = {:formatted => "true", :from => from}
-        opts.merge!(:verbose => "true") if verbose
-
-        status = spinner {
-          Deployment.find(deployment.id).get(:logs, opts)
-        }
-      
-        if status["id"]
-          show_log status["log"]
-          from = status["id"] 
-        end
-
-        break if status["state"] == "finished" or status["state"] == "failed"
-      end
+      # from = nil
+      # while true
+      #   opts = {:formatted => "true", :from => from}
+      #   opts.merge!(:verbose => "true") if verbose
+      # 
+      #   status = spinner {
+      #     Deployment.find(deployment.id).get(:logs, opts)
+      #   }
+      # 
+      #   if status["id"]
+      #     show_log status["log"]
+      #     from = status["id"] 
+      #   end
+      # 
+      #   break if status["state"] == "finished" or status["state"] == "failed"
+      # end
       
     end
   

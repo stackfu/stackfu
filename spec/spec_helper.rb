@@ -60,10 +60,14 @@ module StackFuHelpers
   end
 
   def stdout
-    $stdout.rewind
-    result = $stdout.read
-    $stdout = @orig_stdout
-    result
+    if @orig_stdout
+      $stdout.rewind
+      @result = $stdout.read
+      $stdout = @orig_stdout
+      @orig_stdout = nil
+    end
+    
+    @result
   end
 
   def debug(s)
@@ -84,7 +88,7 @@ Rspec.configure do |config|
   end
   
   config.after(:each) do
-    $stdout = @orig_stdout
+    stdout if @orig_stdout
     asked = $asked.map { |s| "  - #{s}" }.join("\n")
     unless $actions.empty?
       questions = $actions.map do |q| 

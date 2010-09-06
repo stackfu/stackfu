@@ -4,7 +4,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '../..', 'spec_helpe
 describe StackFu::Commands::DeployCommand do
   it "presents the options when none given" do
     command "deploy" 
-    stdout.should =~ /You have to tell what you want to deploy and to which server/
+    stdout.should =~ /You have to tell which script you want to deploy and to which server./
   end
   
   it "deploys a server" do
@@ -16,9 +16,50 @@ describe StackFu::Commands::DeployCommand do
 
     agree_with "Continue with script installation?\n"
 
-    command "deploy script firewall webbynode"
+    command "deploy firewall webbynode"
     
     stdout.should =~ /Preparing: firewall/
     stdout.should =~ /Set up a firewall for your server to improve security./
   end
+  
+  it "shows an error when the script is not found" do
+    prepare(:get, '/scripts/my_script.json', '/scripts/not_found.json')
+
+    command "deploy my_script server"
+    stdout.should =~ /Script 'my_script' was not found/
+  end
+
+  it "shows an error when script found but server not found" do
+    prepare(:get, '/scripts/firewall.json', '/scripts/firewall.json')
+    prepare(:get, '/servers/slicey.json', '/servers/not_found.json')
+
+    command "deploy firewall slicey"
+    stdout.should =~ /Server 'slicey' was not found/
+  end
+
+  it "tells the user if there's a problem submitting the deployment" do
+    prepare(:get, '/scripts/firewall.json')
+    prepare(:get, '/servers/webbynode.json')
+    prepare_raise(:post, '/servers/webbynode/deploy.json', Errno::ECONNREFUSED)
+
+    when_asked "  Ports: ", :answer => "20,21,22"
+    
+    agree_with "Continue with script installation?\n"
+
+    command "deploy firewall webbynode"
+    stdout.should =~ /Could not connect to StackFu server./
+  end
+  
+  it "stops deploying if user disagree of continue prompt" do
+    prepare(:get, '/scripts/firewall.json')
+    prepare(:get, '/servers/webbynode.json')
+
+    when_asked "  Ports: ", :answer => "20,21,22"
+    
+    disagree_of "Continue with script installation?\n"
+
+    command "deploy firewall webbynode"
+    stdout.should =~ /Aborted./
+  end
+  
 end

@@ -2,10 +2,10 @@ module StackFu::Commands
   class DeployCommand < Command
     include StackFu::ApiHooks
   
-    error_messages :missing_subcommand => "You have to tell what you want to deploy and to which server."
-    subcommand :script, :required_parameters => [:plugin_name, :server]
+    # error_messages :missing_subcommand => "You have to tell what you want to deploy and to which server."
+    # subcommand :script, :required_parameters => [:plugin_name, :server]
 
-    def script(parameters, options)
+    def default(parameters, options)
       execute "script", parameters, options, false do |target|
         puts "*** Preparing: #{target.name.foreground(:yellow).bright}"
         puts "    #{target.description}"
@@ -20,19 +20,44 @@ module StackFu::Commands
       server_name = parameters[1]      
       
       target_class = StackFu::ApiHooks.const_get(target.capitalize)
-      target = target_class.find(target_name)
+      begin
+        target = target_class.find(target_name)
+      rescue ActiveResource::ResourceNotFound
+        error "#{target.capitalize} '#{target_name}' was not found"
+        return
+      end
+
+      begin
+        target = target_class.find(target_name)
+      rescue ActiveResource::ResourceNotFound
+        error "#{target.capitalize} '#{target_name}' was not found"
+        return
+      end
 
       unless target
         error "#{target.capitalize} '#{target_name}' was not found"
         return
       end
       
-      return target, server_name
+      begin
+        server = Server.find(server_name)
+      rescue ActiveResource::ResourceNotFound
+        error "Server '#{server_name}' was not found"
+        return
+      end
+      
+      return target, server
     end
     
     def execute(target_name, parameters, options, stack)
-      target, server_id = extract_settings(target_name)
-      return unless target
+      if parameters.size < 2
+        puts "You have to tell which script you want to deploy and to which server."
+        puts "Usage: stackfu deploy [script] [server]"
+        return
+      end
+      
+      target, server = extract_settings(target_name)
+      return unless target and server
       
       yield target
       
@@ -66,7 +91,7 @@ module StackFu::Commands
         return false
       end
       
-      server = Server.find(server_id)
+      server_id = server.id
       server.id = server.slug
       deployment = server.post(:deploy, {}, { :id => server_id, :script_id => target.slug, :params => params }.to_json)
       

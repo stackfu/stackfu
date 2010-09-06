@@ -19,6 +19,12 @@ module StackFuHelpers
     File.read(File.join(File.dirname(__FILE__), "fixtures", file))
   end
   
+  def prepare_raise(method, uri, error)
+    request = stub_request(method, 
+      "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}")
+    request.to_raise(error)
+  end
+  
   def prepare(method, uri, fixture=uri, options=nil)
     request = stub_request(method, 
       "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}")

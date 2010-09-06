@@ -4,9 +4,6 @@ require 'ostruct'
 module StackFu::Commands
   class GenerateCommand < Command
     aliases :create
-    subcommand :stack, :required_parameters => [:stack_name]
-    subcommand :plugin, :required_parameters => [:plugin_name]
-    error_messages :missing_subcommand => "You have to tell what you want to generate: a stack or a plugin."
   
     Types = { 
       [:checkbox, :numericbox, :combobox, :password, :radio, :textbox] => :control
@@ -30,7 +27,8 @@ module StackFu::Commands
       generate("stack", parameters, options)
     end
   
-    def generate(what, parameters, options)
+    def default(parameters, options)
+      what = 'script'
       begin
         item_name = parameters.shift
         items = {}
@@ -56,13 +54,13 @@ module StackFu::Commands
       
         stack = template("stack.yml.erb", {
           "name" => item_name,
-          "description" => "Enter a description for this stack here"
+          "description" => "Enter a description for this script here"
         })
       
         create("#{item_name}", "#{what}.yml", stack)
 
         i = 1
-        %w[controls requirements scripts validations].each do |item|
+        %w[controls requirements executions validations].each do |item|
           template_name = "0#{i}-#{item}.yml"
           create "#{item_name}/config", template_name, template("#{template_name}.erb", {
             item => items[item]
@@ -71,8 +69,8 @@ module StackFu::Commands
         end
     
         items["scripts"].try(:each) do |item|
-          create("#{item_name}/script", "#{item.first}.sh.erb", item.last)
-        end or create("#{item_name}/script")
+          create("#{item_name}/executables", "#{item.first}.sh.erb", item.last)
+        end or create("#{item_name}/executables")
       
         puts "#{what.titleize} #{item_name} created successfully"
       rescue Exceptions::InvalidParameter

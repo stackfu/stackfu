@@ -97,7 +97,10 @@ module StackFu::Commands
     end
   
     def parse_options(args)
-      @subcommand = args.pop unless args.last =~ /^-(.*)/
+      if @subcommand_options
+        @subcommand = args.pop unless args.last =~ /^-(.*)/
+      end
+      
       @subcommand ||=  "default"
       @parameters = []
       @options = {}

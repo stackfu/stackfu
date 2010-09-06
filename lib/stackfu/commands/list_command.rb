@@ -1,31 +1,65 @@
 module StackFu::Commands
   class ListCommand < Command
     include StackFu::ApiHooks
+    
+    class << self
+      include DateHelper
+    end
   
     # error_messages :missing_subcommand => "You have to tell what you want to deploy and to which server."
 
     subcommand :servers, :required_parameters => []
     subcommand :scripts, :required_parameters => []
     
+    TableAttributes = {
+      Server => [
+        [:name, :ip, :validated, :last_seen],
+        lambda do |item| 
+          last_seen = item.last_checked_in
+          
+          if last_seen
+            last_seen = distance_of_time_in_words(Time.now, Time.parse(last_seen))
+            last_seen = "#{last_seen} ago"
+          else
+            last_seen = "- never -"
+          end
+          
+          validated = item.validated? ? "yes" : ""
+          
+          [item.name, item.ip, validated, last_seen]
+        end,
+        "You have no servers yet. You can add new servers to your account in http://stackfu.com."
+      ],
+      Script => [
+        [:name, :description],
+        lambda { |item| [item.name, (item.description || "").truncate_words(10)] },
+        "You have nothing to list yet. To generate a new script, use the 'stackfu generate' command."
+      ]
+    }
+    
     def servers(parameters, options)
-      list [Server], "You have no servers yet. You can add new servers to your account in http://stackfu.com."
+      list Server
     end
     
     def scripts(parameters, options)
-      list [Script], ["You have nothing to list yet. To generate a new script, use the 'stackfu generate' command."]
+      list Script
     end
     
     def default(parameters, options)
-      list [Script, Server], 
-        ["You have no scripts yet. To generate a new script, use the 'stackfu generate' command.\n",
-         "You have no servers yet. You can add new servers to your account in http://stackfu.com.\n"]
+      list [Script, Server]
     end
     
     private
 
-    def list(things_to_list, errors_when_empty)
-      things_to_list.each_with_index do |t, i|
-        kls = t
+    def list(things_to_list)
+      things_to_list = [things_to_list] unless things_to_list.is_a?(Enumerable)
+      
+      things_to_list.each_with_index do |kls, i|
+        attributes = TableAttributes[kls]
+
+        display = attributes[0]
+        fields  = attributes[1]
+        error   = attributes[2]
         
         items = spinner { 
           [
@@ -36,17 +70,13 @@ module StackFu::Commands
         params = {
           :class => [kls], 
           :collection => items,
-          :display => [:name, :type, :description],
+          :display => display,
           :main_column => :name,
-          :empty => errors_when_empty[i],
+          :empty => error,
           :ansi => options[:plain].nil?
         }
 
-        puts table(params) { |item| 
-          description = item.respond_to?(:description) ? item.description : ""
-        
-          [item.name, kls.name.split('::').last, description.truncate_words(10)]
-        }
+        puts table(params) { |item| fields.call item }
         
         puts "" if i < things_to_list.size-1
       end

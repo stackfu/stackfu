@@ -7,7 +7,7 @@ describe StackFu::Commands::ListCommand do
     prepare(:get, '/servers.json', 'servers/none.json')
     command "list"
     
-    stdout.should =~ /You have no scripts yet. To generate a new script, use the 'stackfu generate' command/
+    stdout.should =~ /You have nothing to list yet. To generate a new script, use the 'stackfu generate' command/
   end
   
   it "lists scripts" do
@@ -47,5 +47,7 @@ describe StackFu::Commands::ListCommand do
     stdout.should =~ /Listing 2 servers/
     stdout.should =~ /Webbynode/
     stdout.should =~ /MyDog/
+    stdout.should =~ /123.45.678.90/
+    stdout.should =~ /123.45.678.91/
   end
 end

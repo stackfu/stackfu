@@ -12,8 +12,7 @@ module StackFu::Commands
     end
 
     def default(parameters, options)
-      what = :stack if stack?
-      what = :plugin if plugin?
+      what = :script
       
       unless what
         error "Couldn't find an item to publish on current folder.",
@@ -23,7 +22,7 @@ module StackFu::Commands
       begin
         stack_spec = YAML.load(read("#{what}.yml"))
       
-        %w[controls requirements scripts validations].each_with_index do |item, i|
+        %w[controls requirements executions validations].each_with_index do |item, i|
           if (yaml = read("config/0#{i+1}-#{item}.yml"))
             yaml.gsub!("type:", "_type:") if item == "controls"
             if (from_yaml = YAML.load(yaml))
@@ -31,15 +30,15 @@ module StackFu::Commands
             end
           end
         end
-      
+        
         unless stack_spec["executions"].present?
-          error "To publish a #{what} you have to define at least one script.",
-            "Take a look at the scripts descriptor file config/03-script.yml for more information.\nYou can also use 'stackfu generate stack_name script_name:script' command to auto-generate a sample script."
+          error "To publish a #{what} you have to define at least one execution.",
+            "Take a look at the executions descriptor file config/03-executions.yml for more information.\nYou can also use 'stackfu generate stack_name script_name:script' command to auto-generate a sample execution."
           return false
         end
       
         return unless stack_spec["executions"].each do |script|
-          template = "script/#{script["file"]}.sh.erb"
+          template = "executables/#{script["file"]}.sh.erb"
         
           begin
             script["script"] = read(template)
@@ -51,13 +50,15 @@ module StackFu::Commands
           true
         end
         
-        item_class = ApiHooks.const_get("#{what.to_s.classify}")
+        item_class = StackFu::ApiHooks.const_get("#{what.to_s.classify}")
         item_class.format = :json
 
-        stacks = item_class.find(:all) || []
-        stacks = stacks.select { |s| s.name == stack_spec["name"] }
+        begin
+          stack = item_class.find(stack_spec["name"])
+        rescue ActiveResource::ResourceNotFound 
+        end
         
-        if stacks.any? 
+        if stack
           unless options[:update]
             if agree("You already have a #{what} named #{stack_spec["name"]}. Do you want to update it?")
               puts ""
@@ -69,7 +70,6 @@ module StackFu::Commands
             end
           end
         
-          stack = stacks.first
           begin
             item_class.delete(stack.name)
           rescue ActiveResource::ResourceNotFound 
@@ -81,6 +81,7 @@ module StackFu::Commands
         puts "Publishing #{what} #{stack_spec["name"]}..."
 
         stack = item_class.new(stack_spec)
+
         if publish(stack)
           done "#{what.to_s.titleize} #{stack.name} published."
         else
@@ -90,6 +91,7 @@ module StackFu::Commands
         error "#{$!.message}"
       rescue Errno::ENOENT
         error "There was an error opening your file descriptor"
+        raise
       end
     end
   

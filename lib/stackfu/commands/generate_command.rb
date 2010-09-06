@@ -36,8 +36,8 @@ module StackFu::Commands
           name, type = p.split(":")
         
           case type(type)
-          when :script
-            (items["scripts"]||=[]) << [name, template("script.sh.erb", {
+          when :execution, :script
+            (items["executions"]||=[]) << [name, template("script.sh.erb", {
               "filename" => name,
               "description" => name.titleize
             })]
@@ -68,7 +68,7 @@ module StackFu::Commands
           i += 1
         end
     
-        items["scripts"].try(:each) do |item|
+        items["executions"].try(:each) do |item|
           create("#{item_name}/executables", "#{item.first}.sh.erb", item.last)
         end or create("#{item_name}/executables")
       

@@ -25,9 +25,9 @@
 # install_apache.sh.erb, isntall_mysql.sh.erb and
 # install_php.sh.erb
 #
-<% if scripts %>
-scripts: 
-<% scripts.each do |s| %>
+<% if executions %>
+executions: 
+<% executions.each do |s| %>
 - description: <%= s.first.titleize %>
   file: <%= s.first %>
 <% end %>

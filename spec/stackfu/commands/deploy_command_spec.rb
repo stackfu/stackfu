@@ -17,6 +17,8 @@ describe StackFu::Commands::DeployCommand do
     agree_with "Continue with script installation?\n"
 
     command "deploy script firewall webbynode"
-    puts stdout
+    
+    stdout.should =~ /Preparing: firewall/
+    stdout.should =~ /Set up a firewall for your server to improve security./
   end
 end

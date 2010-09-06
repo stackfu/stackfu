@@ -97,7 +97,7 @@ module StackFu::Commands
     end
   
     def parse_options(args)
-      if @subcommand_options
+      if self.class.subcommand_options
         @subcommand = args.pop unless args.last =~ /^-(.*)/
       end
       

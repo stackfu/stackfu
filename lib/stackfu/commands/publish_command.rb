@@ -43,7 +43,7 @@ module StackFu::Commands
           begin
             script["script"] = read(template)
           rescue Errno::ENOENT
-            error "The template file for the script '#{script["description"]}' was not found.", "This stack has a script called '#{script["description"]}', and the template for it should be in a file called script/#{script["file"]}.sh.erb."
+            error "The template file for the script '#{script["description"]}' was not found.", "This script has an executable called '#{script["description"]}', and the template for it should be in a file called executables/#{script["file"]}.sh.erb."
             break false
           end
         

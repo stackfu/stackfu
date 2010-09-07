@@ -15,7 +15,7 @@ module StackFu::Commands
       Server => [
         [:name, :ip, :validated, :last_seen],
         lambda do |item| 
-          last_seen = item.last_checked_in
+          last_seen = item.last_checked_in if item.respond_to?(:last_checked_in)
           
           if last_seen
             last_seen = distance_of_time_in_words(Time.now, Time.parse(last_seen))

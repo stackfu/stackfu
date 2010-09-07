@@ -65,6 +65,12 @@ module StackFu::Commands
         begin
           stack = item_class.find(stack_spec["name"])
         rescue ActiveResource::ResourceNotFound 
+        rescue NoMethodError
+          if $!.message =~ /closed\?/
+            raise Errno::ECONNREFUSED
+          else
+            raise
+          end
         end
 
         if stack

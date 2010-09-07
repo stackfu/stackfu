@@ -54,7 +54,7 @@ module StackFu
       puts ""
       puts "To get you up to speed, we need you to provide us a couple of configuration settings that will follow."
       puts
-      ConfigCommand.new.run
+      Commands::ConfigCommand.new.run
       true
     end
   

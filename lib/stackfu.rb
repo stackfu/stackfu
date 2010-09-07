@@ -37,6 +37,7 @@ require "#{dir}/helpers/providers_credentials"
 require "#{dir}/operating_systems"
 require "#{dir}/api_hooks"
 require "#{dir}/app"
+require "#{dir}/date_helper"
 
 require "#{dir}/commands/command"
 require "#{dir}/commands/help_command"
@@ -49,13 +50,14 @@ require "#{dir}/commands/deploy_command"
 require "#{dir}/commands/dump_command"
 
 module StackFu
-  VERSION = '0.0.1'
-  API = "http://localhost:3000"
+  VERSION = '0.1.1'
+  API = "http://beta.stackfu.com"
+  # API = "http://localhost:3000"
   CONFIG_FILE = "#{ENV['HOME']}/.stackfu"
 
   include StackFu::OperatingSystems
 
-  module Exceptions
+  module Commands::Exceptions
     class UnknownCommand < StandardError; end
     class InvalidCommand < StandardError; end
     class InvalidSubcommand < StandardError; end

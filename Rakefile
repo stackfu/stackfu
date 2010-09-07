@@ -4,7 +4,7 @@ require 'rake/testtask'
 
 require 'echoe'  
   
-Echoe.new('stackfu', '0.1.0') do |p|  
+Echoe.new('stackfu', '0.1.2.2') do |p|  
   p.description     = "StackFu Backend"  
   p.url             = "http://stackfu.com/cli"  
   p.author          = "Felipe Coury"

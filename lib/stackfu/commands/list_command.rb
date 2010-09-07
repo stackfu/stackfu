@@ -13,7 +13,7 @@ module StackFu::Commands
     
     TableAttributes = {
       Server => [
-        [:name, :ip, :validated, :last_seen],
+        [:name, :key, :ip, :validated, :last_seen],
         lambda do |item| 
           last_seen = item.last_checked_in if item.respond_to?(:last_checked_in)
           
@@ -26,7 +26,7 @@ module StackFu::Commands
           
           validated = item.validated? ? "yes" : ""
           
-          [item.name, item.ip, validated, last_seen]
+          [item.name, item._id, item.ip, validated, last_seen]
         end,
         "You have no servers yet. You can add new servers to your account in http://stackfu.com."
       ],

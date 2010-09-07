@@ -24,8 +24,17 @@ module StackFu::Commands
       
         %w[controls requirements executions validations].each_with_index do |item, i|
           if (yaml = read("config/0#{i+1}-#{item}.yml"))
-            yaml.gsub!("type:", "_type:") if item == "controls"
+            yaml.gsub!("type:", "_type:")
             if (from_yaml = YAML.load(yaml))
+              if item == 'requirements' or item == 'validations'
+                buffer = []
+                from_yaml[item].each do |itm|
+                  itm["params"] = { "data" => itm.delete("data") }
+                  buffer << itm
+                end
+                from_yaml[item] = buffer
+              end
+              
               stack_spec[item == "scripts" ? "executions" : item] = from_yaml[item]
             end
           end
@@ -41,7 +50,7 @@ module StackFu::Commands
           template = "executables/#{script["file"]}.sh.erb"
         
           begin
-            script["script"] = read(template)
+            script["body"] = read(template)
           rescue Errno::ENOENT
             error "The template file for the script '#{script["description"]}' was not found.", "This script has an executable called '#{script["description"]}', and the template for it should be in a file called executables/#{script["file"]}.sh.erb."
             break false
@@ -57,7 +66,7 @@ module StackFu::Commands
           stack = item_class.find(stack_spec["name"])
         rescue ActiveResource::ResourceNotFound 
         end
-        
+
         if stack
           unless options[:update]
             if agree("You already have a #{what} named #{stack_spec["name"]}. Do you want to update it?")

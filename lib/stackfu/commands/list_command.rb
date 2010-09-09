@@ -26,7 +26,7 @@ module StackFu::Commands
           
           validated = item.validated? ? "yes" : ""
           
-          [item.name, item._id, item.ip, validated, last_seen]
+          [item.slug, item._id, item.ip, validated, last_seen]
         end,
         "You have no servers yet. You can add new servers to your account in http://stackfu.com."
       ],

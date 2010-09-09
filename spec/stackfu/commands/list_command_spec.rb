@@ -28,8 +28,8 @@ describe StackFu::Commands::ListCommand do
     command "list servers"
 
     stdout.should =~ /Listing 2 servers/
-    stdout.should =~ /Webbynode/
-    stdout.should =~ /MyDog/
+    stdout.should =~ /webbynode/
+    stdout.should =~ /mydog/
   end
   
   it "lists both" do
@@ -45,8 +45,8 @@ describe StackFu::Commands::ListCommand do
     stdout.should =~ /mysql/
 
     stdout.should =~ /Listing 2 servers/
-    stdout.should =~ /Webbynode/
-    stdout.should =~ /MyDog/
+    stdout.should =~ /webbynode/
+    stdout.should =~ /mydog/
     stdout.should =~ /123.45.678.90/
     stdout.should =~ /123.45.678.91/
   end

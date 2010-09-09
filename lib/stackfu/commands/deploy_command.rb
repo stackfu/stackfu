@@ -62,7 +62,7 @@ module StackFu::Commands
       yield target
       
       params = fill_values_from_options(target, options)
-      names = target.controls.map(&:name)
+      names = target.controls ? target.controls.map(&:name) : []
       review = params.any?
       
       if (names - params.keys.map(&:to_s)).any?
@@ -94,6 +94,7 @@ module StackFu::Commands
       server_id = server.id
       server.id = server.slug
       deployment = server.post(:deploy, {}, { :id => server_id, :script_id => target.slug, :params => params }.to_json)
+      deployment = JSON.parse(deployment.body)
       
       if options[:"no-follow"]
         puts "Your deployment have been submitted"
@@ -102,22 +103,30 @@ module StackFu::Commands
     
       verbose = options[:verbose]
     
-      # from = nil
-      # while true
-      #   opts = {:formatted => "true", :from => from}
-      #   opts.merge!(:verbose => "true") if verbose
-      # 
-      #   status = spinner {
-      #     Deployment.find(deployment.id).get(:logs, opts)
-      #   }
-      # 
-      #   if status["id"]
-      #     show_log status["log"]
-      #     from = status["id"] 
-      #   end
-      # 
-      #   break if status["state"] == "finished" or status["state"] == "failed"
-      # end
+      from = nil
+      while true
+        opts = {} 
+        opts['from'] = from if from
+        # opts.merge!(:verbose => "true") if verbose
+      
+        logs = spinner {
+          Deployment.new(:id => deployment['_id']).get(:logs, opts)
+        }
+        
+        from = logs["last_id"] 
+        print logs["contents"]
+      
+        puts "\nFrom inside:"
+        puts from
+
+        break if logs["status"] == "finished" or logs["status"] == "failed"
+      end
+
+      if logs["status"] == 'finished'
+        puts "Success".foreground(:green)
+      else
+        puts "Deployment failed".foreground(:red)
+      end
       
     end
   

@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Status: 200
+X-Powered-By: Phusion Passenger (mod_rails/mod_rack) 2.2.15
+ETag: "d127c2243a70ba0f2a401a07ee559950"
+X-Runtime: 0.041129
+Set-Cookie: _stackfu_session=BAh7ByIPc2Vzc2lvbl9pZCIlODM5MWMyODMwMjY5MTlmNzA1NjUyYzJiMjc5ZjVmNWEiGXdhcmRlbi51c2VyLnVzZXIua2V5WwciCVVzZXJvOhNCU09OOjpPYmplY3RJRAY6CkBkYXRhWxFpUWkBhWkBhWkbaQF9aQF8aUdpXmkoaQBpAGkI--cf2a5ed6f60109a5bae34b90c10de70eba3afa31; path=/; HttpOnly
+Cache-Control: max-age=0, private, must-revalidate
+Server: nginx/0.7.67 + Phusion Passenger 2.2.15 (mod_rails/mod_rack)
+
+{"last_id":"4c866bb17d7c4261a3000105","contents":"-Making the middle-\nRules updated\nAllowing port 20001\nRules updated\n","status":"running" }

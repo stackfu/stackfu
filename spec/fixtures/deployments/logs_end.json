@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Status: 200
+X-Powered-By: Phusion Passenger (mod_rails/mod_rack) 2.2.15
+ETag: "fe50b125a289fc0de1108165c375eac3"
+X-Runtime: 0.040042
+Set-Cookie: _stackfu_session=BAh7ByIPc2Vzc2lvbl9pZCIlYTAzMTc5NWYyZDlkY2VlMjRkYjBiMWEzMWY1OTczMDEiGXdhcmRlbi51c2VyLnVzZXIua2V5WwciCVVzZXJvOhNCU09OOjpPYmplY3RJRAY6CkBkYXRhWxFpUWkBhWkBhWkbaQF9aQF8aUdpXmkoaQBpAGkI--228d9aa8b3d24dde49cc8b1465f4f4f6c2612ed5; path=/; HttpOnly
+Cache-Control: max-age=0, private, must-revalidate
+Server: nginx/0.7.67 + Phusion Passenger 2.2.15 (mod_rails/mod_rack)
+
+{"last_id":"4c866bb17d7c4261a3000104","contents":"","status":"finished"}

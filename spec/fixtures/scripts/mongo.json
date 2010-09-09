@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Status: 200
+X-Powered-By: Phusion Passenger (mod_rails/mod_rack) 2.2.15
+ETag: "b4cddf585c137fc28af867d064a359c5"
+X-Runtime: 0.013269
+Set-Cookie: _stackfu_session=BAh7ByIPc2Vzc2lvbl9pZCIlMzVlYWEwOWU4ZGJiOGNjZWEwODljZDIwNjJmZGI1ZjgiGXdhcmRlbi51c2VyLnVzZXIua2V5WwciCVVzZXJvOhNCU09OOjpPYmplY3RJRAY6CkBkYXRhWxFpUWkBhWkBhWkbaQF9aQF8aUdpXmkoaQBpAGkI--6d81934eb060aa5f0f69488b1bd7f69171034ba7; path=/; HttpOnly
+Cache-Control: max-age=0, private, must-revalidate
+Server: nginx/0.7.67 + Phusion Passenger 2.2.15 (mod_rails/mod_rack)
+
+{"slug":"mongo","name":"mongo","controls":null,"created_at":"2010-09-09T14:08:22Z","updated_at":"2010-09-09T14:08:22Z","action":"create","_id":"4c88ea567d7c420655000004","user_id":"4c8585167d7c425923000003","executions":[{"body":"# \n# install_mongodb.sh\n# Thu Sep 09 11:05:35 -0300 2010\n#\n\n# TODO: Replace the contents of this file with \"Install Mongodb\"\necho [<%= Time.now %>] Installing -- Install Mongodb\n\n# adds 10gen repo \necho \"deb http://downloads.mongodb.org/distros/ubuntu 10.4 10gen\" >> /etc/apt/sources.list\n\n# installs 10gen repo gpg key\napt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10 2>&1\n\n# update packages\napt-get update\n\n# installs mongodb\napt-get install mongodb-stable\n\necho [<%= Time.now %>] Done\n","_id":"4c88ea567d7c420655000003","_type":"Executable","description":"Install MongoDB","file":"install_mongodb"}],"description":"Installs MongoDB on Ubuntu 10.04","watching_user_ids":["4c8585167d7c425923000003"]}

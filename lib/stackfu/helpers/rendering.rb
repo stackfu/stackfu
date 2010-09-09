@@ -10,6 +10,8 @@ module StackFu
     def fill_values_from_options(stack, options)
       params = {}
 
+      return params unless stack.controls
+      
       stack.controls.each do |c|
         if (opt = options[c.name.to_sym])
           case c._type

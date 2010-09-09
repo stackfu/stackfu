@@ -11,6 +11,12 @@ describe StackFu::Commands::DeployCommand do
     prepare(:get, '/servers/webbynode.json')
     prepare(:get, '/scripts/firewall.json')
     prepare(:post, '/servers/webbynode/deploy.json')
+
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json', '/deployments/logs.json')
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000104',
+      '/deployments/logs_middle.json')
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000105',
+      '/deployments/logs_end.json')
     
     when_asked "  Ports: ", :answer => "80,23,22"
 
@@ -20,6 +26,55 @@ describe StackFu::Commands::DeployCommand do
     
     stdout.should =~ /Preparing: firewall/
     stdout.should =~ /Set up a firewall for your server to improve security./
+    stdout.should =~ /\*\*\*\* THIS IS THE BEGINNING OF THIS DEPLOYMENT, DUDE! \*\*\*\*/
+    stdout.should =~ /-Making the middle-/
+    stdout.should =~ /Success/
+  end
+  
+  it "asks no params when script has none" do
+    prepare(:get, '/servers/webbynode.json')
+    prepare(:get, '/scripts/mongo.json')
+    prepare(:post, '/servers/webbynode/deploy.json')
+
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json', '/deployments/logs.json')
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000104',
+      '/deployments/logs_middle.json')
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000105',
+      '/deployments/logs_end.json')
+    
+    agree_with "Continue with script installation?\n"
+
+    command "deploy mongo webbynode"
+    
+    stdout.should =~ /Preparing: mongo/
+    stdout.should =~ /Installs MongoDB on Ubuntu 10.04/
+    stdout.should =~ /\*\*\*\* THIS IS THE BEGINNING OF THIS DEPLOYMENT, DUDE! \*\*\*\*/
+    stdout.should =~ /-Making the middle-/
+    stdout.should =~ /Success/
+  end
+  
+  it "reports an installation failure" do
+    prepare(:get, '/servers/webbynode.json')
+    prepare(:get, '/scripts/firewall.json')
+    prepare(:post, '/servers/webbynode/deploy.json')
+
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json', '/deployments/logs.json')
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000104',
+      '/deployments/logs_middle.json')
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000105',
+      '/deployments/logs_failed.json')
+    
+    when_asked "  Ports: ", :answer => "80,23,22"
+
+    agree_with "Continue with script installation?\n"
+
+    command "deploy firewall webbynode"
+    
+    stdout.should =~ /Preparing: firewall/
+    stdout.should =~ /Set up a firewall for your server to improve security./
+    stdout.should =~ /\*\*\*\* THIS IS THE BEGINNING OF THIS DEPLOYMENT, DUDE! \*\*\*\*/
+    stdout.should =~ /-Making the middle-/
+    stdout.should =~ /Deployment failed/
   end
   
   it "shows an error when the script is not found" do

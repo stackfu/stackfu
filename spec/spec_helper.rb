@@ -25,6 +25,16 @@ module StackFuHelpers
     request.to_raise(error)
   end
   
+  def prepare_multi(method, uri, *fixtures)
+    d "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}"
+    d fixtures.map { |f| read_fixture(f) }
+
+    request = stub_request(method, 
+      "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}")
+      
+    request.to_return(fixtures.map { |f| read_fixture(f) })
+  end
+  
   def prepare(method, uri, fixture=uri, options=nil)
     request = stub_request(method, 
       "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}")

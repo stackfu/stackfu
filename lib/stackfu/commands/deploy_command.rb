@@ -93,37 +93,68 @@ module StackFu::Commands
       
       server_id = server.id
       server.id = server.slug
-      deployment = server.post(:deploy, {}, { :id => server_id, :script_id => target.slug, :params => params }.to_json)
+      begin
+        deployment = server.post(:deploy, {}, { :id => server_id, :script_id => target.slug, :params => params }.to_json)
+      rescue ActiveResource::ClientError
+        if $!.message =~ /406/
+          puts "Error: ".foreground(:red) + "Cannot deploy - there is another deploy queued or running for this server."
+          return
+        else
+          raise
+        end
+      end
+        
       deployment = JSON.parse(deployment.body)
       
       if options[:"no-follow"]
         puts "Your deployment have been submitted"
         return 
       end
+      
+      puts ""
+      puts "Waiting for the server..."
     
       verbose = options[:verbose]
     
       from = nil
+      last_status = 'queued'
+      finished = false
+      
       while true
         opts = {} 
-        opts['from'] = from if from
-        # opts.merge!(:verbose => "true") if verbose
+        opts['from_id'] = from if from
       
         logs = spinner {
           Deployment.new(:id => deployment['_id']).get(:logs, opts)
         }
+
+        status = logs['status']
+        if status != last_status
+          if status == 'running'
+            puts ""
+            puts "---------- " + " SCRIPT STARTED ".foreground(:white).bright.background(:blue) + " ----------"
+            puts ""
+          elsif status == 'finished'
+            finished = true
+          end
+          last_status = status
+        end
         
         from = logs["last_id"] 
         print logs["contents"]
-      
-        puts "\nFrom inside:"
-        puts from
-
+        
+        if finished
+          puts ""
+          puts "---------- " + " SCRIPT FINISHED ".foreground(:white).bright.background(:blue) + " ----------"
+        end
+        
         break if logs["status"] == "finished" or logs["status"] == "failed"
       end
+      
+      puts ""
 
       if logs["status"] == 'finished'
-        puts "Success".foreground(:green)
+        puts "Deployment finished: " + " SUCCESS ".foreground(:white).bright.background(:green)
       else
         puts "Deployment failed".foreground(:red)
       end

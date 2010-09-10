@@ -26,6 +26,16 @@ module StackFu
           "Please check if your internet connection is active. If you think this problem is not in your end, please report it by emailing support@stackfu.com or try again in a few minutes."
         raise if $dev
 
+      rescue ActiveResource::ClientError
+        error "There was an error contacting StackFu backend: #{$!.message}.",
+          "Please report this problem at support@stackfu.com or try again in a few minutes."
+        raise if $dev
+        
+      rescue ActiveResource::ServerError
+        error "There was an error contacting StackFu backend: #{$!.message}.",
+          "Please report this problem at support@stackfu.com or try again in a few minutes."
+        raise if $dev
+
       rescue ActiveResource::UnauthorizedAccess
         error "Access denied for user '#{$config[:login]}'",
           "Please check the credentials provided on file #{ENV['HOME']}/.stackfu and run 'stackfu config' for changing it."

@@ -7,15 +7,45 @@ describe StackFu::Commands::DeployCommand do
     stdout.should =~ /You have to tell which script you want to deploy and to which server./
   end
   
+  it "tells the user if there is another deployment running" do
+    prepare(:get, '/servers/webbynode.json')
+    prepare(:get, '/scripts/firewall.json')
+    prepare_status(:post, '/servers/webbynode/deploy.json', [406, "This server already has a deployment queued or running"])
+    
+    when_asked "  Ports: ", :answer => "80,23,22"
+
+    agree_with "Continue with script installation?\n"
+
+    command "deploy firewall webbynode"
+    
+    stdout.should =~ /Error:/
+    stdout.should =~ /Cannot deploy/
+  end
+  
+  it "tells the user when an unexpected error occurs" do
+    prepare(:get, '/servers/webbynode.json')
+    prepare(:get, '/scripts/firewall.json')
+    prepare_status(:post, '/servers/webbynode/deploy.json', [500, "Server has received a roundhound kick!"])
+    
+    when_asked "  Ports: ", :answer => "80,23,22"
+
+    agree_with "Continue with script installation?\n"
+
+    command "deploy firewall webbynode"
+    
+    stdout.should =~ /There was an error/
+    stdout.should =~ /Server has received a roundhound kick!/
+  end
+  
   it "deploys a server" do
     prepare(:get, '/servers/webbynode.json')
     prepare(:get, '/scripts/firewall.json')
     prepare(:post, '/servers/webbynode/deploy.json')
 
     prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json', '/deployments/logs.json')
-    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000104',
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from_id=4c866bb17d7c4261a3000104',
       '/deployments/logs_middle.json')
-    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000105',
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from_id=4c866bb17d7c4261a3000105',
       '/deployments/logs_end.json')
     
     when_asked "  Ports: ", :answer => "80,23,22"
@@ -28,7 +58,8 @@ describe StackFu::Commands::DeployCommand do
     stdout.should =~ /Set up a firewall for your server to improve security./
     stdout.should =~ /\*\*\*\* THIS IS THE BEGINNING OF THIS DEPLOYMENT, DUDE! \*\*\*\*/
     stdout.should =~ /-Making the middle-/
-    stdout.should =~ /Success/
+    stdout.should =~ /Deployment finished:/
+    stdout.should =~ /SUCCESS/
   end
   
   it "asks no params when script has none" do
@@ -37,9 +68,9 @@ describe StackFu::Commands::DeployCommand do
     prepare(:post, '/servers/webbynode/deploy.json')
 
     prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json', '/deployments/logs.json')
-    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000104',
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from_id=4c866bb17d7c4261a3000104',
       '/deployments/logs_middle.json')
-    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000105',
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from_id=4c866bb17d7c4261a3000105',
       '/deployments/logs_end.json')
     
     agree_with "Continue with script installation?\n"
@@ -50,7 +81,7 @@ describe StackFu::Commands::DeployCommand do
     stdout.should =~ /Installs MongoDB on Ubuntu 10.04/
     stdout.should =~ /\*\*\*\* THIS IS THE BEGINNING OF THIS DEPLOYMENT, DUDE! \*\*\*\*/
     stdout.should =~ /-Making the middle-/
-    stdout.should =~ /Success/
+    stdout.should =~ /SUCCESS/
   end
   
   it "reports an installation failure" do
@@ -59,9 +90,9 @@ describe StackFu::Commands::DeployCommand do
     prepare(:post, '/servers/webbynode/deploy.json')
 
     prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json', '/deployments/logs.json')
-    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000104',
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from_id=4c866bb17d7c4261a3000104',
       '/deployments/logs_middle.json')
-    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from=4c866bb17d7c4261a3000105',
+    prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from_id=4c866bb17d7c4261a3000105',
       '/deployments/logs_failed.json')
     
     when_asked "  Ports: ", :answer => "80,23,22"

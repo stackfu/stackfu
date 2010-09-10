@@ -44,6 +44,13 @@ module StackFuHelpers
     request.to_return(read_fixture(fixture))
   end
   
+  def prepare_status(method, uri, status)
+    request = stub_request(method, 
+      "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}")
+    request.to_return(:status => status)
+    
+  end
+  
   def when_asked_to_choose(what, options)
     $actions << { :type => "choose", :action => options.merge(:prompt => what) }
   end

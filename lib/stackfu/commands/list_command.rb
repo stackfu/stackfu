@@ -13,18 +13,19 @@ module StackFu::Commands
     
     TableAttributes = {
       Server => [
-        [:name, :key, :ip, :validated, :last_seen],
+        [:name, :key, :ip, :verified, :last_seen],
         lambda do |item| 
           last_seen = item.last_checked_in if item.respond_to?(:last_checked_in)
           
           if last_seen
             last_seen = distance_of_time_in_words(Time.now, Time.parse(last_seen))
             last_seen = "#{last_seen} ago"
+            validated = "yes"
           else
             last_seen = "- never -"
+            validated = ""
           end
           
-          validated = item.validated? ? "yes" : ""
           
           [item.slug, item._id, item.ip, validated, last_seen]
         end,

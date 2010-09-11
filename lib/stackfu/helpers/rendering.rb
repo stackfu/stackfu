@@ -15,7 +15,7 @@ module StackFu
       stack.controls.each do |c|
         if (opt = options[c.name.to_sym])
           case c._type
-          when "Textbox"
+          when "Textbox", "Password"
             params[c.name] = opt if opt
 
           when "Numericbox"
@@ -43,6 +43,9 @@ module StackFu
 
           when "Numericbox"
             params[c.name] = ask("  #{c.label.rjust(max_length)}: ", Integer)
+            
+          when "Password"
+            params[c.name] = ask("  #{c.label.rjust(max_length)}: ") { |q| q.echo = "*" }
 
           end
         end

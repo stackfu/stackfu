@@ -2,6 +2,35 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '../..', 'spec_helper')
 
 describe StackFu::Commands::DeployCommand do
+  context 'rendering controls do' do
+    it "tells the user if there is another deployment running" do
+      prepare(:get, '/servers/webbynode.json')
+      prepare(:get, '/scripts/password.json')
+
+      when_asked "  Password: ", :answer => "mama mia"
+      when_asked "     Ports: ", :answer => "80,23,22"
+
+      disagree_of "Continue with script installation?\n"
+
+      command "deploy password webbynode"
+
+      stdout.should =~ /Aborted./
+    end
+    
+    it "shows review for password if passed as parameter" do
+      prepare(:get, '/servers/webbynode.json')
+      prepare(:get, '/scripts/password.json')
+    
+      when_asked "     Ports: ", :answer => "80,23,22"
+    
+      disagree_of "Continue with script installation?\n"
+    
+      command "deploy password webbynode --password=mamamia"
+    
+      stdout.should =~ /Password: mamamia/
+    end
+  end
+  
   it "presents the options when none given" do
     command "deploy" 
     stdout.should =~ /You have to tell which script you want to deploy and to which server./

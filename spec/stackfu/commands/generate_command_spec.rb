@@ -52,6 +52,11 @@ describe StackFu::Commands::GenerateCommand do
     stdout.should =~ /Don't know how to generate a script with abcdef. Use 'stackfu help generate' for more information./
   end
   
+  it "aliases to gen" do
+    command "gen test abcdef"
+    stdout.should =~ /Don't know how to generate a script with abcdef. Use 'stackfu help generate' for more information./
+  end
+  
   it "raises an error message if one of the params is of invalid type" do
     command "generate test yogurt:food"
     stdout.should =~ /Don't know how to generate a script with food yogurt. Use 'stackfu help generate' for more information./

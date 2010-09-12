@@ -2,6 +2,22 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '../..', 'spec_helper')
 
 describe StackFu::Commands::DeployCommand do
+  context 'aliases' do
+    it "responds to dep command" do
+      prepare(:get, '/servers/webbynode.json')
+      prepare(:get, '/scripts/password.json')
+
+      when_asked "  Password: ", :answer => "mama mia"
+      when_asked "     Ports: ", :answer => "80,23,22"
+
+      disagree_of "Continue with script installation?\n"
+
+      command "dep password webbynode"
+
+      stdout.should =~ /Aborted./
+    end
+  end
+    
   context 'rendering controls do' do
     it "tells the user if there is another deployment running" do
       prepare(:get, '/servers/webbynode.json')

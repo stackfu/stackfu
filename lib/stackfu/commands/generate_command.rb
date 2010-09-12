@@ -3,7 +3,7 @@ require 'ostruct'
 
 module StackFu::Commands
   class GenerateCommand < Command
-    aliases :create
+    aliases :create, :gen
   
     Types = { 
       [:checkbox, :numericbox, :combobox, :password, :radio, :textbox] => :control

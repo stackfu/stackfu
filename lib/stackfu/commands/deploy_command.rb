@@ -1,6 +1,7 @@
 module StackFu::Commands
   class DeployCommand < Command
     include StackFu::ApiHooks
+    aliases :dep
   
     # error_messages :missing_subcommand => "You have to tell what you want to deploy and to which server."
     # subcommand :script, :required_parameters => [:plugin_name, :server]

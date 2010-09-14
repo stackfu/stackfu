@@ -55,7 +55,7 @@ describe StackFu::Commands::DeployCommand do
   it "tells the user if there is another deployment running" do
     prepare(:get, '/servers/webbynode.json')
     prepare(:get, '/scripts/firewall.json')
-    prepare_status(:post, '/servers/webbynode/deploy.json', [406, "This server already has a deployment queued or running"])
+    prepare_status(:post, '/scripts/firewall/deploy.json', [406, "This server already has a deployment queued or running"])
     
     when_asked "  Ports: ", :answer => "80,23,22"
 
@@ -70,7 +70,7 @@ describe StackFu::Commands::DeployCommand do
   it "tells the user when an unexpected error occurs" do
     prepare(:get, '/servers/webbynode.json')
     prepare(:get, '/scripts/firewall.json')
-    prepare_status(:post, '/servers/webbynode/deploy.json', [500, "Server has received a roundhound kick!"])
+    prepare_status(:post, '/scripts/firewall/deploy.json', [500, "Server has received a roundhound kick!"])
     
     when_asked "  Ports: ", :answer => "80,23,22"
 
@@ -85,7 +85,7 @@ describe StackFu::Commands::DeployCommand do
   it "deploys a server" do
     prepare(:get, '/servers/webbynode.json')
     prepare(:get, '/scripts/firewall.json')
-    prepare(:post, '/servers/webbynode/deploy.json')
+    prepare(:post, '/scripts/firewall/deploy.json')
 
     prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json', '/deployments/logs.json')
     prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from_id=4c866bb17d7c4261a3000104',
@@ -110,7 +110,7 @@ describe StackFu::Commands::DeployCommand do
   it "asks no params when script has none" do
     prepare(:get, '/servers/webbynode.json')
     prepare(:get, '/scripts/mongo.json')
-    prepare(:post, '/servers/webbynode/deploy.json')
+    prepare(:post, '/scripts/mongo/deploy.json')
 
     prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json', '/deployments/logs.json')
     prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from_id=4c866bb17d7c4261a3000104',
@@ -132,7 +132,7 @@ describe StackFu::Commands::DeployCommand do
   it "reports an installation failure" do
     prepare(:get, '/servers/webbynode.json')
     prepare(:get, '/scripts/firewall.json')
-    prepare(:post, '/servers/webbynode/deploy.json')
+    prepare(:post, '/scripts/firewall/deploy.json')
 
     prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json', '/deployments/logs.json')
     prepare(:get, '/deployments/4c82bbb3d489e856ce000006/logs.json?from_id=4c866bb17d7c4261a3000104',
@@ -171,7 +171,7 @@ describe StackFu::Commands::DeployCommand do
   it "tells the user if there's a problem submitting the deployment" do
     prepare(:get, '/scripts/firewall.json')
     prepare(:get, '/servers/webbynode.json')
-    prepare_raise(:post, '/servers/webbynode/deploy.json', Errno::ECONNREFUSED)
+    prepare_raise(:post, '/scripts/firewall/deploy.json', Errno::ECONNREFUSED)
 
     when_asked "  Ports: ", :answer => "20,21,22"
     

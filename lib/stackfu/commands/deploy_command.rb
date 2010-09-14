@@ -95,7 +95,7 @@ module StackFu::Commands
       server_id = server.id
       server.id = server.slug
       begin
-        deployment = server.post(:deploy, {}, { :id => server_id, :script_id => target.slug, :params => params }.to_json)
+        deployment = Script.new(:id => target.slug).post(:deploy, {}, { :server_ids => [server.slug], :params => params }.to_json)
       rescue ActiveResource::ClientError
         if $!.message =~ /406/
           puts "Error: ".foreground(:red) + "Cannot deploy - there is another deploy queued or running for this server."
@@ -105,7 +105,8 @@ module StackFu::Commands
         end
       end
         
-      deployment = JSON.parse(deployment.body)
+      deployments = JSON.parse(deployment.body)
+      deployment = deployments.first
       
       if options[:"no-follow"]
         puts "Your deployment have been submitted"

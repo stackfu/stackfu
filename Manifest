@@ -9,13 +9,10 @@ bin/stackfu
 firewall/config/01-controls.yml
 firewall/config/02-requirements.yml
 firewall/config/03-executions.yml
-firewall/config/03-scripts.yml
 firewall/config/04-validations.yml
 firewall/executables/configure_ufw.sh.erb
 firewall/executables/install_ufw.sh.erb
 firewall/script.yml
-firewall/script/configure_ufw.sh.erb
-firewall/script/install_ufw.sh.erb
 lib/stackfu.rb
 lib/stackfu/api_hooks.rb
 lib/stackfu/app.rb
@@ -43,6 +40,7 @@ spec/fixtures/scripts/firewall.json
 spec/fixtures/scripts/mongo.json
 spec/fixtures/scripts/none.json
 spec/fixtures/scripts/not_found.json
+spec/fixtures/scripts/password.json
 spec/fixtures/scripts/script_not_found.json
 spec/fixtures/servers/all.json
 spec/fixtures/servers/cannot_deploy.json
@@ -57,6 +55,7 @@ spec/stackfu/commands/dump_command_spec.rb
 spec/stackfu/commands/generate_command_spec.rb
 spec/stackfu/commands/list_command_spec.rb
 spec/stackfu/commands/publish_command_spec.rb
+spec/stackfu/rendering_spec.rb
 stackfu-installer/config/01-controls.yml
 stackfu-installer/config/02-requirements.yml
 stackfu-installer/config/03-executions.yml

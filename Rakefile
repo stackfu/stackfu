@@ -4,15 +4,15 @@ require 'rake/testtask'
 
 require 'echoe'  
   
-Echoe.new('stackfu', '0.1.3') do |p|  
+Echoe.new('stackfu', '0.1.4') do |p|  
   p.description     = "StackFu Backend"  
   p.url             = "http://stackfu.com/cli"  
   p.author          = "Felipe Coury"
   p.email           = "felipe@stackfu.com"  
   p.ignore_pattern  = ["tmp/*", "script/*"]  
   p.dependencies = [
-    ['activeresource','>= 2.3.4'],
-    ['activesupport','>= 2.3.4'],
+    ['activeresource','>= 2.3.9'],
+    ['activesupport','>= 2.3.9'],
     ['rainbow', '>=1.0.4'],
     ['highline', '>=1.5.1'],
     ['httparty', '>=0.4.5']

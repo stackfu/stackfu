@@ -50,7 +50,7 @@ require "#{dir}/commands/deploy_command"
 require "#{dir}/commands/dump_command"
 
 module StackFu
-  VERSION = '0.1.1'
+  VERSION = '0.1.5'
   API = "http://beta.stackfu.com"
   # API = "http://localhost:3000"
   CONFIG_FILE = "#{ENV['HOME']}/.stackfu"

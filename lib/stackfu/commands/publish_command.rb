@@ -10,6 +10,19 @@ module StackFu::Commands
     def plugin?
       File.exists?("plugin.yml")
     end
+    
+    def format_error
+      messages = ["there were validation problems with your script.", ""]
+      %w(script.yml config/01-controls.yml config/02-requirements.yml config/03-executions.yml config/04-validations.yml).each do |f|
+        if @errors[f]
+          messages << "Errors in #{f.foreground(:green)}:"
+          messages << @errors[f].map { |e| "- #{e}" }
+          messages << ""
+        end
+      end
+      
+      messages.flatten.join("\n")
+    end
 
     def default(parameters, options)
       what = :script
@@ -21,7 +34,11 @@ module StackFu::Commands
       
       begin
         stack_spec = read_and_validate(what)
-        return unless stack_spec
+        
+        if @errors.keys.any?
+          error format_error
+          return
+        end
       
         %w[controls requirements executions validations].each_with_index do |item, i|
           if (yaml = read("config/0#{i+1}-#{item}.yml"))
@@ -113,36 +130,37 @@ module StackFu::Commands
   
     private
     
-    def fmt_error(message)
-      result = block_given? ? yield : false
+    def check(file, message)
+      return true if result = block_given? ? yield : false
       
-      unless result
-        error message, "For more information about file formats, check out http://stackfu.com/guides/stackfu-cli."
-        return false
-      end
-      
-      true
+      (@errors[file]||=[]) << message.gsub(/'(.*)'/, '\1'.foreground(:blue).bright)
+      false
     end
     
     def read_and_check(yml)
       begin
-        return YAML.load(read(yml)) || ""
+        return YAML.load(read(yml))
       rescue ArgumentError
-        fmt_error "Invalid YAML document in #{yml}. Parse error: #{$!.message}"
-        return
+        (@errors[yml]||=[]) << "invalid YAML document. Parse error: #{$!.message}" 
       end
     end
     
     def read_and_validate(what)
-      return unless stack_spec = read_and_check("#{what}.yml")
-      return unless fmt_error("The #{what}.yml descriptor has the wrong format.") { stack_spec.is_a?(Hash) }
-      return unless fmt_error("Missing field 'name' in script.yml.")              { stack_spec['name'] }
-      return unless fmt_error("Missing field 'type' in script.yml.")              { stack_spec['type'] }    
-      return unless fmt_error("Invalid value for field 'type' in script.yml.")    { stack_spec['type'] == 'script' }
-      return unless validate_controls
-      return unless validate_requirements
-      return unless validate_executions
-      return unless validate_validations
+      @errors = {}
+      
+      if stack_spec = read_and_check("#{what}.yml")
+        if check("script.yml", "the file descriptor has the wrong format") { stack_spec.is_a?(Hash) }
+          check("script.yml", "missing field #{"name".try(:foreground, :blue).try(:bright)}")             { stack_spec['name'] }
+          if check("script.yml", "missing field #{"type".try(:foreground, :blue).try(:bright)}")          { stack_spec['type'] }    
+            check("script.yml", "invalid value for field #{"type".try(:foreground, :blue).try(:bright)}") { stack_spec['type'] == 'script' }
+          end
+        end
+      end
+
+      validate_controls
+      validate_requirements
+      validate_executions
+      validate_validations
       
       stack_spec
     end
@@ -150,20 +168,17 @@ module StackFu::Commands
     def validate_spec(idx, name, item_id, checks)
       file = "config/#{idx}-#{name}.yml"
       
-      spec = read_and_check(file)
-      return unless spec
-      return true if spec == ""
-      
-      return unless fmt_error("Invalid format for #{file}.") { 
+      return unless spec = read_and_check(file)
+      return unless check(file, "invalid format") { 
         spec.is_a?(Hash) && spec[name].is_a?(Array) 
       }
       
       spec[name].each_with_index do |item, i|
         checks.each do |check|
           if item_id.nil? or check == item_id
-            return unless fmt_error("missing #{check} for #{name.singularize} #{i+1} in #{file}.") { item[check] }
+            check(file, "missing #{check} for #{name.singularize} #{i+1}") { item[check] }
           else
-            return unless fmt_error("missing #{check} for #{name.singularize} '#{item[item_id]}' in #{file}.") { item[check] }
+            check(file, "missing #{check} for #{name.singularize} #{item[item_id].try(:foreground, :blue).try(:bright)}") { item[check] }
           end
         end
         
@@ -172,42 +187,31 @@ module StackFu::Commands
     end
     
     def validate_controls
-      return unless validate_spec '01', 'controls', 'name', ['name', 'type'] do |item, i|
-        return unless fmt_error("invalid type '#{item["type"]}' for control '#{item["name"]}' in config/01-controls.yml.") { 
+      validate_spec '01', 'controls', 'name', ['name', 'type'] do |item, i|
+        check('config/01-controls.yml', "invalid type '#{item["type"]}' for control #{item["name"].try(:foreground, :blue).try(:bright)}") { 
           %w(Textbox Numericbox Password).include? item['type']
         }
-        true
       end
-
-      true
     end
     
     def validate_requirements
-      return unless validate_spec '02', 'requirements', nil, ['type', 'data'] do |item, i|
-        return unless fmt_error("invalid type '#{item["type"]}' for requirement #{i} in config/02-requirements.yml.") { 
+      validate_spec '02', 'requirements', nil, ['type', 'data'] do |item, i|
+        check("config/02-requirements.yml", "invalid type #{item["type"].try(:foreground, :blue).try(:bright)} for requirement #{i}") { 
           %w(DirExists FileExists ExecutableExists ProcessExists RubyCanLoad RubyGem SymlinkExists).include? item['type']
         }
-        true
       end
-      
-      true
     end
   
     def validate_executions
-      return unless validate_spec '03', 'executions', 'file', ['file', 'description']
-      
-      true
+      validate_spec '03', 'executions', 'file', ['file', 'description']
     end
     
     def validate_validations
-      return unless validate_spec '04', 'validations', nil, ['type', 'data'] do |item, i|
-        return unless fmt_error("invalid type '#{item["type"]}' for validation #{i} in config/04-validations.yml.") { 
+      validate_spec '04', 'validations', nil, ['type', 'data'] do |item, i|
+        check('config/04-validations.yml', "invalid type #{item["type"].try(:foreground, :blue).try(:bright)} for validation #{i}") { 
           %w(DirExists FileExists ExecutableExists ProcessExists RubyCanLoad RubyGem SymlinkExists).include? item['type']
         }
-        true
       end
-      
-      true
     end
         
     def publish(stack)

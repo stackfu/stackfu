@@ -20,7 +20,8 @@ module StackFu::Commands
       end
       
       begin
-        return unless stack_spec = read_and_validate(what)
+        stack_spec = read_and_validate(what)
+        return unless stack_spec
       
         %w[controls requirements executions validations].each_with_index do |item, i|
           if (yaml = read("config/0#{i+1}-#{item}.yml"))
@@ -125,7 +126,7 @@ module StackFu::Commands
     
     def read_and_check(yml)
       begin
-        return YAML.load(read(yml))
+        return YAML.load(read(yml)) || ""
       rescue ArgumentError
         fmt_error "Invalid YAML document in #{yml}. Parse error: #{$!.message}"
         return
@@ -149,7 +150,10 @@ module StackFu::Commands
     def validate_spec(idx, name, item_id, checks)
       file = "config/#{idx}-#{name}.yml"
       
-      return unless spec = read_and_check(file)
+      spec = read_and_check(file)
+      return unless spec
+      return true if spec == ""
+      
       return unless fmt_error("Invalid format for #{file}.") { 
         spec.is_a?(Hash) && spec[name].is_a?(Array) 
       }

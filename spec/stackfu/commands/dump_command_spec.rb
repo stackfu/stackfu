@@ -41,7 +41,7 @@ describe StackFu::Commands::DumpCommand do
       stdout.should =~ /^\tcreate  firewall\/executables\//
       stdout.should =~ /^\tcreate  firewall\/executables\/install_ufw.sh.erb/
       stdout.should =~ /^\tcreate  firewall\/executables\/configure_ufw.sh.erb/
-      stdout.should =~ /^Script firewall dumped successfully/
+      stdout.should =~ /^Success: Script firewall dumped/
     end
   end
 end

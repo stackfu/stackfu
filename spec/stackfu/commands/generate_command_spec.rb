@@ -70,13 +70,13 @@ describe StackFu::Commands::GenerateCommand do
   it "raises a nice error when mkdir fails" do
     expect_create :dir => "test", :file => "script.yml", :raise => [IOError, "Error description"]
     command "generate test"
-    stdout.should =~ /There was an error creating your script: Error description/
+    stdout.should =~ /Error description/
   end
 
   it "raises a nice error when mkdir fails because there is a file with same name" do
     expect_create :dir => "test", :file => "script.yml", :raise => [Errno::EEXIST, "Error description"]
     command "generate test"
-    stdout.should =~ /There was an error creating your script: File exists - Error description/
+    stdout.should =~ /File exists - Error description/
   end
 
   def expect_create(opts={})

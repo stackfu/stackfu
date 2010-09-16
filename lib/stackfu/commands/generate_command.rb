@@ -80,11 +80,11 @@ module StackFu::Commands
           create("#{item_name}/executables", "#{item.first}.sh.erb", item.last)
         end or create("#{item_name}/executables")
       
-        puts "#{what.titleize} #{item_name} created successfully"
+        done "#{what.titleize} #{item_name} created successfully"
       rescue Exceptions::InvalidParameter
-        puts $!.message
+        error $!.message
       rescue IOError, Errno::EEXIST
-        puts "There was an error creating your #{what}: #{$!.message}"      
+        error "#{$!.message}"      
       end
     end
   
@@ -97,13 +97,13 @@ module StackFu::Commands
   
     def create(d, f=nil, contents=nil)
       unless File.directory?(d)
-        puts "\tcreate  #{d}/"
+        puts "\t#{"create".foreground(:green)}  #{d}/"
         ::FileUtils.mkdir_p(d)
       end
 
       if f.present?
         f = "#{d}/#{f}"
-        puts "\tcreate  #{f}"
+        puts "\t#{"create".foreground(:green)}  #{f}"
         File.open(f, "w") do |file|
           file.write(contents)
         end

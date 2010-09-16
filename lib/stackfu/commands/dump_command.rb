@@ -82,9 +82,9 @@ module StackFu::Commands
           create_file "#{script_name}/executables/#{script.description.downcase.gsub(" ", "_")}.sh.erb", script.body
         end
         
-        puts "Script #{script_name} dumped successfully..."
+        done "Script #{script_name} dumped."
       else
-        puts "Script '#{script_name}' was not found"
+        error "Script '#{script_name}' was not found"
       end
     end
     
@@ -99,7 +99,7 @@ module StackFu::Commands
     end
     
     def create_folder(folder)
-      puts "\tcreate  #{folder}/"
+      puts "\t#{"create".foreground(:green)}  #{folder}/"
       mkdir folder
     end
     
@@ -110,7 +110,7 @@ module StackFu::Commands
     end
     
     def create_file(file, contents)
-      puts "\tcreate  #{file}"
+      puts "\t#{"create".foreground(:green)}  #{file}"
       write_file(file, contents)
     end
     

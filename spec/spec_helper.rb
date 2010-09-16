@@ -15,6 +15,10 @@ HighLine.track_eof = false
 # Reads out a file from the fixtures directory
 
 module StackFuHelpers
+  def fixture?(file)
+    File.exists?(File.join(File.dirname(__FILE__), "fixtures", file))
+  end
+  
   def read_fixture(file)
     File.read(File.join(File.dirname(__FILE__), "fixtures", file))
   end

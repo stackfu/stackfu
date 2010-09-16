@@ -2,6 +2,207 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '../..', 'spec_helper')
 
 describe StackFu::Commands::PublishCommand do
+
+  context 'validating script.yml' do
+    it "checks script.yml format" do
+      setup_fixture('invalid')
+
+      command "pub"
+      stdout.should =~ /The script.yml descriptor has the wrong format./
+    end
+
+    it "checks for valid YAML file" do
+      setup_one 'missing', 'script.yml', 'name: myscript, type: yadda'
+
+      command "pub"
+      stdout.should =~ /Invalid YAML document in script.yml. Parse error: syntax error on line 0, col 21/
+    end
+
+    it "checks required script field 'name'" do
+      setup_fixture('missing')
+
+      command "pub"
+      stdout.should =~ /Missing field 'name' in script.yml/
+    end
+
+    it "checks required script field 'type'" do
+      setup_one 'missing', 'script.yml', 'name: myscript'
+
+      command "pub"
+      stdout.should =~ /Missing field 'type' in script.yml/
+    end
+
+    it "checks content of field 'type'" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: yadda}'
+
+      command "pub"
+      stdout.should =~ /Invalid value for field 'type' in script.yml/
+    end
+  end
+  
+  context 'validating 01-controls.yml' do
+    it "checks file format" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'hey you'
+      
+      command "pub"
+      stdout.should =~ /Invalid format for config\/01-controls.yml./
+    end
+
+    it "checks for invalid YML" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'name: myscript, type: yadda'
+      
+      command "pub"
+      stdout.should =~ /Invalid YAML document in config\/01-controls.yml. Parse error: syntax error on line 0, col 21/
+    end
+    
+    it "checks for missing controls key" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'other: [{name: control}]'
+      
+      command "pub"
+      stdout.should =~ /Invalid format for config\/01-controls.yml./
+    end
+
+    it "assures that controls is an array" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'other: {name: control}'
+      
+      command "pub"
+      stdout.should =~ /Invalid format for config\/01-controls.yml./
+    end
+
+    it "checks for missing name" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: [{type: Textbox}]'
+      
+      command "pub"
+      stdout.should =~ /missing name for control 1 in config\/01-controls.yml./
+    end
+
+    it "checks for missing type" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: [{name: control}]'
+      
+      command "pub"
+      stdout.should =~ /missing type for control 'control' in config\/01-controls.yml./
+    end
+
+    it "checks for invalid type" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: [{name: control, type: RockOn}]'
+      
+      command "pub"
+      stdout.should =~ /invalid type 'RockOn' for control 'control' in config\/01-controls.yml./
+    end
+  end
+  
+  context 'validating 02-requirements.yml' do
+    it "checks file format" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: []'
+      setup_one 'missing', 'config/02-requirements.yml', 'hey you'
+      
+      command "pub"
+      stdout.should =~ /Invalid format for config\/02-requirements.yml./
+    end
+    
+    it "checks for invalid YAML" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: []'
+      setup_one 'missing', 'config/02-requirements.yml', 'name: myscript, - type: yadda'
+      
+      command "pub"
+      stdout.should =~ /Invalid YAML document in config\/02-requirements.yml. Parse error: syntax error on line 0, col 23/
+    end
+    
+    it "checks for missing type" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: []'
+      setup_one 'missing', 'config/02-requirements.yml', "requirements:\n- {data: x, type: DirExists}\n- data: x"
+      
+      command "pub"
+      stdout.should =~ /missing type for requirement 2/
+    end
+  end
+  
+  context 'validating 03-executions.yml' do
+    it "checks file format" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: []'
+      setup_one 'missing', 'config/02-requirements.yml', 'requirements: []'
+      setup_one 'missing', 'config/03-executions.yml', 'hey you'
+      
+      command "pub"
+      stdout.should =~ /Invalid format for config\/03-executions.yml./
+    end
+    
+    it "checks for invalid YAML" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: []'
+      setup_one 'missing', 'config/02-requirements.yml', 'requirements: []'
+      setup_one 'missing', 'config/03-executions.yml', 'name: myscript, - type: yadda'
+      
+      command "pub"
+      stdout.should =~ /Invalid YAML document in config\/03-executions.yml. Parse error: syntax error on line 0, col 23/
+    end
+    
+    it "checks for missing description" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: []'
+      setup_one 'missing', 'config/02-requirements.yml', 'requirements: []'
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}\n- file: execution"
+      
+      command "pub"
+      stdout.should =~ /missing description for execution 'execution'/
+    end
+    
+    it "checks for missing file" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: []'
+      setup_one 'missing', 'config/02-requirements.yml', 'requirements: []'
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}\n- description: execution"
+      
+      command "pub"
+      stdout.should =~ /missing file for execution 2/
+    end
+  end
+  
+  context 'validating 04-validations.yml' do
+    it "checks file format" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: []'
+      setup_one 'missing', 'config/02-requirements.yml', 'requirements: []'
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', 'hey you'
+      
+      command "pub"
+      stdout.should =~ /Invalid format for config\/04-validations.yml./
+    end
+    
+    it "checks for invalid YAML" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: []'
+      setup_one 'missing', 'config/02-requirements.yml', 'requirements: []'
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', 'name: myscript, - type: yadda'
+      
+      command "pub"
+      stdout.should =~ /Invalid YAML document in config\/04-validations.yml. Parse error: syntax error on line 0, col 23/
+    end
+    
+    it "checks for missing type" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: []'
+      setup_one 'missing', 'config/02-requirements.yml', 'requirements: []'
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', "validations:\n- {data: x, type: DirExists}\n- data: x"
+      
+      command "pub"
+      stdout.should =~ /missing type for validation 2/
+    end
+  end
   
   it "checks if script exists before publishing" do
     prepare(:get, '/scripts/firewall.json', '/scripts/firewall.json')
@@ -17,14 +218,32 @@ describe StackFu::Commands::PublishCommand do
     stdout.should =~ /Success/
   end
   
+  private
+  
+  def setup_fixture(script)
+    setup_one script, "script.yml"  
+    setup_one script, "config/01-controls.yml"
+    setup_one script, "config/02-requirements.yml"
+    setup_one script, "config/03-executions.yml"
+    setup_one script, "config/04-validations.yml"
+  end
+  
+  def setup_one(script, expect, contents=nil)
+    return unless fixture?("scripts/#{script}/#{expect}")
+    contents ||= read_fixture("scripts/#{script}/#{expect}")
+      
+    StackFu::Commands::PublishCommand.any_instance.stubs(:read).with(expect).returns(contents)
+  end
+  
+  
   def setup_script(options={})
-    StackFu::Commands::PublishCommand.any_instance.expects(:read).with("script.yml").returns(<<-EOS)
+    StackFu::Commands::PublishCommand.any_instance.stubs(:read).with("script.yml").returns(<<-EOS)
 --- 
-type: stack
+type: script
 name: #{options[:"script_name"] || "my_script"}
 description: "This will deploy my script"
 EOS
-    StackFu::Commands::PublishCommand.any_instance.expects(:read).with("config/01-controls.yml").returns(<<-EOS)
+    StackFu::Commands::PublishCommand.any_instance.stubs(:read).with("config/01-controls.yml").returns(<<-EOS)
 controls:
 - name: nome
   label: Nome
@@ -33,28 +252,28 @@ controls:
   label: Idade
   type: Numericbox
 EOS
-    StackFu::Commands::PublishCommand.any_instance.expects(:read).with("config/02-requirements.yml").returns(<<-EOS)
+    StackFu::Commands::PublishCommand.any_instance.stubs(:read).with("config/02-requirements.yml").returns(<<-EOS)
 requirements:
 
-- type: directory
+- type: DirExists
   data: "/var"
   error: "You need /var folder before installing"
 EOS
-    StackFu::Commands::PublishCommand.any_instance.expects(:read).with("config/03-executions.yml").returns(options[:scripts] || <<-EOS)
+    StackFu::Commands::PublishCommand.any_instance.stubs(:read).with("config/03-executions.yml").returns(options[:scripts] || <<-EOS)
 executions: 
 
 - description: Echoer
   file: echoer
 EOS
-    StackFu::Commands::PublishCommand.any_instance.expects(:read).with("config/04-validations.yml").returns(<<-EOS)
+    StackFu::Commands::PublishCommand.any_instance.stubs(:read).with("config/04-validations.yml").returns(<<-EOS)
 validations:
-- type: directory
+- type: DirExists
   data: "/etc/apache2"
   error: Apache was not installed properly
 EOS
 
     unless options[:scripts]
-      StackFu::Commands::PublishCommand.any_instance.expects(:read).with("executables/echoer.sh.erb").returns(<<-EOS)
+      StackFu::Commands::PublishCommand.any_instance.stubs(:read).with("executables/echoer.sh.erb").returns(<<-EOS)
 #
 # echoe.sh
 # Echoes a variable

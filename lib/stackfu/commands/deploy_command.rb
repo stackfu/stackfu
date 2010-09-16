@@ -18,21 +18,27 @@ module StackFu::Commands
     
     def extract_settings(target)
       target_name = parameters[0]
-      server_name = parameters[1]      
+      server_name = parameters[1]
       
-      target_class = StackFu::ApiHooks.const_get(target.capitalize)
-      begin
-        target = target_class.find(target_name)
-      rescue ActiveResource::ResourceNotFound
-        error "#{target.capitalize} '#{target_name}' was not found"
-        return
-      end
+      if target_name.include?('/')
+        user_name, target_name = target_name.split('/')
+        user = User.new(:id => user_name)
+        target = Script.new(user.get(target_name))
+      else
+        begin
+          target_class = StackFu::ApiHooks.const_get(target.capitalize)
+          target = target_class.find(target_name)
+        rescue ActiveResource::ResourceNotFound
+          error "#{target.capitalize} '#{target_name}' was not found"
+          return
+        end
 
-      begin
-        target = target_class.find(target_name)
-      rescue ActiveResource::ResourceNotFound
-        error "#{target.capitalize} '#{target_name}' was not found"
-        return
+        begin
+          target = target_class.find(target_name)
+        rescue ActiveResource::ResourceNotFound
+          error "#{target.capitalize} '#{target_name}' was not found"
+          return
+        end
       end
 
       unless target

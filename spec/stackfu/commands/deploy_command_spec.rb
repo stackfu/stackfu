@@ -17,6 +17,21 @@ describe StackFu::Commands::DeployCommand do
       stdout.should =~ /Aborted./
     end
   end
+  
+  context "deploying other user's scripts" do
+    it "queries for /user/script.json" do
+      prepare(:get, '/users/fcoury/mongodb.json')
+      prepare(:get, '/servers/webbynode.json')
+      
+      when_asked "  Ports: ", :answer => "80,23,22"
+
+      disagree_of "Continue with script installation?\n"
+
+      command "dep fcoury/mongodb webbynode"
+
+      stdout.should =~ /Aborted./
+    end
+  end
     
   context 'rendering controls do' do
     it "tells the user if there is another deployment running" do

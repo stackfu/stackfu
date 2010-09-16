@@ -2,6 +2,11 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '../..', 'spec_helper')
 
 describe StackFu::Commands::GenerateCommand do
+  it "shown an error if no name is given" do
+    command "generate"
+    stdout.should =~ /Missing script name./
+  end
+  
   it "generates the script file and folder when no executables are given" do
     expect_create :dir => "test", :file => "script.yml"
     expect_create :dir => "test/executables"

@@ -31,6 +31,14 @@ module StackFu::Commands
       what = 'script'
       begin
         item_name = parameters.shift
+
+        unless item_name
+          error "Missing script name.",
+            "Try again using 'stackfu generate [script_name]'."
+          return false
+        end
+        
+        
         items = {}
         while (p = parameters.shift)
           name, type = p.split(":")

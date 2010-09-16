@@ -4,6 +4,18 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '../..', 'spec_helpe
 describe StackFu::Commands::PublishCommand do
 
   context 'validating script.yml' do
+    it "validates the name for invalid chars" do
+      setup_one 'missing', 'script.yml', "name: My Fair Scripty\ntype: script"
+      setup_one 'missing', 'config/01-controls.yml', ''
+      setup_one 'missing', 'config/02-requirements.yml', ''
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', ''
+      
+      command "pub"
+      stdout.should =~ /invalid value for field name: only lower case chars, numbers and underscores are allowed/
+    end
+
+    
     it "checks script.yml format" do
       setup_fixture('invalid')
       setup_one 'missing', 'config/01-controls.yml', ''

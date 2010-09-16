@@ -150,7 +150,15 @@ module StackFu::Commands
       
       if stack_spec = read_and_check("#{what}.yml")
         if check("script.yml", "the file descriptor has the wrong format") { stack_spec.is_a?(Hash) }
-          check("script.yml", "missing field #{"name".try(:foreground, :blue).try(:bright)}")             { stack_spec['name'] }
+          if check("script.yml", "missing field #{"name".try(:foreground, :blue).try(:bright)}")             { stack_spec['name'] }
+            check("script.yml", 
+              "invalid value for field #{"name".try(:foreground, :blue).try(:bright)}: " +
+              "only lower case chars, numbers and underscores are allowed") { 
+                
+                stack_spec['name'] =~ /^[a-z0-9_]*$/
+            }
+          end
+          
           if check("script.yml", "missing field #{"type".try(:foreground, :blue).try(:bright)}")          { stack_spec['type'] }    
             check("script.yml", "invalid value for field #{"type".try(:foreground, :blue).try(:bright)}") { stack_spec['type'] == 'script' }
           end

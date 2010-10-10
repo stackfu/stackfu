@@ -23,34 +23,30 @@ module StackFuHelpers
     File.read(File.join(File.dirname(__FILE__), "fixtures", file))
   end
   
+  def url(uri)
+    if StackFu::API =~ /(https*):\/\/(.*)/
+      return "#{$1}://abc123:X@#{$2}#{uri}"
+    end
+  end
+  
   def prepare_raise(method, uri, error)
-    request = stub_request(method, 
-      "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}")
+    request = stub_request(method, "#{url(uri)}")
     request.to_raise(error)
   end
   
   def prepare_multi(method, uri, *fixtures)
-    d "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}"
-    d fixtures.map { |f| read_fixture(f) }
-
-    request = stub_request(method, 
-      "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}")
-      
+    request = stub_request(method, "#{url(uri)}")
     request.to_return(fixtures.map { |f| read_fixture(f) })
   end
   
   def prepare(method, uri, fixture=uri, options=nil)
-    request = stub_request(method, 
-      "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}")
-
+    request = stub_request(method, "#{url(uri)}")
     request = request.with(options) if options
-
     request.to_return(read_fixture(fixture))
   end
   
   def prepare_status(method, uri, status)
-    request = stub_request(method, 
-      "#{StackFu::API.gsub("http://", "http://abc123:X@")}#{uri}")
+    request = stub_request(method, "#{url(uri)}")
     request.to_return(:status => status)
     
   end

@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Status: 200
+X-Powered-By: Phusion Passenger (mod_rails/mod_rack) 2.2.15
+ETag: "ba683de741937a8ad5f1ddf681d7ba3a"
+X-UA-Compatible: IE=Edge,chrome=1
+X-Runtime: 0.010493
+Cache-Control: max-age=0, private, must-revalidate
+Server: nginx/0.7.67 + Phusion Passenger 2.2.15 (mod_rails/mod_rack)
+
+{"slug":"fcoury","name":"Felipe Coury","encrypted_password":"$2a$10$oLUOcTB7KLW9.QtgvDSxJuLi7GsWlLoNu6mN1S8XZ.R1prGYjMfye","company":"Webbynode","location":"Campinas, SP, Brazil","created_at":"2010-09-06T20:19:34-04:00","updated_at":"2010-09-16T16:04:24-04:00","last_sign_in_ip":"69.172.231.32","last_sign_in_at":"2010-09-16T16:04:15-04:00","_id":"4c8585167d7c425923000003","sign_in_count":30544,"password_salt":"$2a$10$oLUOcTB7KLW9.QtgvDSxJu","website":"http://felipecoury.com","remember_token":"RaKFlotbuKfseiMRKWoa","following_user_ids":["4c8abb277d7c4212aa00033b"],"current_sign_in_ip":"208.88.124.171","authentication_token":"znwcz2xEJVDnUu2xJRFb","remember_created_at":"2010-09-16T10:47:33-04:00","current_sign_in_at":"2010-09-16T16:04:24-04:00","watched_stack_ids":[],"login":"fcoury","confirmation_password":"r4nd0mp4ssf0rth3w1n","watched_script_ids":["4c8585167d7c425923000008","4c85b7e77d7c425a8a00000a","4c8666a97d7c4261a3000006","4c8672bd7d7c4261a3000198","4c88ea567d7c420655000004","4c88eda37d7c420662000135","4c8585167d7c425923000014","4c8a84ad7d7c4212aa000011","4c8a85b07d7c4212aa00001c","4c8a85c17d7c4212aa000025","4c8a86937d7c4212aa0000a5","4c8a87817d7c4212aa000112","4c8b87d77d7c4217a6000006","4c8b88b77d7c4217a600004d","4c8b92e77d7c4217b30000b8","4c8bab3d7d7c421ca8000066","4c8bb2bb7d7c421cc7000090","4c8bb3737d7c421ec400001a","4c8bb4767d7c421cc70000a5","4c8bc9087d7c422038000007","4c8bd1df7d7c422045000018","4c8bd45e7d7c422045000046","4c8bd5427d7c42204500005e","4c8bd8557d7c422290000034","4c8bded67d7c422559000003","4c8bdfc77d7c42256700001e","4c8be3107d7c4226c3000008","4c8c0f037d7c4226c300002c","4c8be47a7d7c4226c3000022","4c885b3f7d7c420354000009","4c9031a97d7c424684000003","4c9040cb7d7c42496800001c","4c9134767d7c424eed000015","4c921b587d7c4252cb000003","4c921c697d7c4252cb000007","4c922df97d7c425401000003","4c9255d97d7c42542b000008"],"member_since":"2010-09-06","form_type":"settings","followed_user_ids":["4c8585167d7c425923000004","4c8abb277d7c4212aa00033b"],"email":"felipe.coury@gmail.com"}

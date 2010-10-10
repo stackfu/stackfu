@@ -50,4 +50,16 @@ describe StackFu::Commands::ListCommand do
     stdout.should =~ /123.45.678.90/
     stdout.should =~ /123.45.678.91/
   end
+  
+  it "shows blank when ip isn't present" do
+    prepare(:get, '/servers.json', 'servers/no_ip.json')
+    prepare(:get, '/scripts.json', 'scripts/none.json')
+
+    command "list"
+
+    stdout.should =~ /Listing 2 servers/
+    stdout.should =~ /webbynode/
+    stdout.should =~ /mydog/
+    stdout.should =~ /123.45.678.91/
+  end
 end

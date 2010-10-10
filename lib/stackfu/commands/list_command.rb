@@ -26,8 +26,9 @@ module StackFu::Commands
             validated = ""
           end
           
+          ip = item.respond_to?(:ip) ? item.ip : ""
           
-          [item.slug, item._id, item.ip, validated, last_seen]
+          [item.slug, item._id, ip, validated, last_seen]
         end,
         "You have no servers yet. You can add new servers to your account in http://stackfu.com."
       ],

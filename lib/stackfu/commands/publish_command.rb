@@ -1,4 +1,6 @@
 module StackFu::Commands
+  class CheckFailed < StandardError; end
+
   class PublishCommand < Command
     include StackFu::ApiHooks
     aliases :pub
@@ -137,6 +139,21 @@ module StackFu::Commands
       false
     end
     
+    def add_error(error)
+      (@errors[@file]||=[]) << error.gsub(/'(.*)'/, '\1'.foreground(:blue).bright)
+    end
+    
+    def check2(file)
+      @file = file
+      begin
+        block_given? ? yield : false
+        true
+      rescue CheckFailed
+        (@errors[file]||=[]) << $!.message.gsub(/'(.*)'/, '\1'.foreground(:blue).bright)
+        false
+      end
+    end
+    
     def read_and_check(yml)
       begin
         return YAML.load(read(yml))
@@ -194,11 +211,85 @@ module StackFu::Commands
       end
     end
     
+    def validate_control_type(item)
+      check('config/01-controls.yml', "invalid type '#{item["type"]}' for control #{item["name"].try(:foreground, :blue).try(:bright)}") { 
+        %w(Textbox Numericbox Password Radio Combobox).include? item['type']
+      }
+    end
+    
+    def option_needed?(item)
+      item['type'] == 'Radio' or item['type'] == 'Combobox'
+    end
+    
+    def validate_options_presence(item)
+      check('config/01-controls.yml', "missing options for #{item["type"]} control #{item["name"].try(:foreground, :blue).try(:bright)}") { 
+        if option_needed?(item)
+          !item['options'].nil?
+        else
+          true
+        end
+      }
+    end
+    
+    def validate_options_format(item)
+      check('config/01-controls.yml', "invalid options format for #{item["type"]} control #{item["name"].try(:foreground, :blue).try(:bright)}") { 
+        if option_needed?(item)
+          if !item['options'].nil?
+            begin
+              valid = true
+              if item['options'].is_a?(Array)
+                item['options'].each do |option|
+                  valid = false unless option.is_a?(Array) && option.size == 2
+                end
+              else
+                valid = false
+              end
+              valid
+            rescue ArgumentError
+              false
+            end
+          else
+            true
+          end
+        else
+          true
+        end
+      }
+    end
+    
+    def allows_validation?(item)
+      ['Textbox', 'Numericbox', 'Password'].include? item['type']
+    end
+
+    ValidationTypes = %w(matches required minlength maxlength rangelength min max range email url date dateISO number digits equalTo)
+    
+    def valid_validation?(type, value)
+      ValidationTypes.include?(type)
+    end
+    
+    def validate_validations_format(item)
+      check2('config/01-controls.yml') do
+        return unless allows_validation?(item) and !(vals = item['validations']).nil?
+        
+        error = "invalid validations format for #{item["type"]} #{blue(item["name"])}"
+        raise CheckFailed, error unless vals.is_a?(Array)
+        
+        vals.each do |val|
+          raise CheckFailed, error unless val.is_a?(Hash)
+
+          type, value = val.keys.first, val.values.first
+          message = "invalid validation type for #{item["type"]} #{blue(item["name"])}: #{red(type)}" 
+          add_error message unless valid_validation?(type, value)
+        end
+      end
+    end
+    
     def validate_controls
       validate_spec '01', 'controls', 'name', ['name', 'type'] do |item, i|
-        check('config/01-controls.yml', "invalid type '#{item["type"]}' for control #{item["name"].try(:foreground, :blue).try(:bright)}") { 
-          %w(Textbox Numericbox Password).include? item['type']
-        }
+        validate_control_type(item) && 
+        validate_options_presence(item) &&
+        validate_options_format(item) &&
+        validate_validations_format(item)
       end
     end
     
@@ -233,6 +324,14 @@ module StackFu::Commands
     end
   
     def load_stack
+    end
+    
+    def blue(s)
+      s.try(:foreground, :blue).try(:bright)
+    end
+    
+    def red(s)
+      s.try(:foreground, :red)
     end
   end
 end

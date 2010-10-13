@@ -123,6 +123,123 @@ describe StackFu::Commands::PublishCommand do
       command "pub"
       stdout.should =~ /missing name for control 1/
     end
+    
+    it "checks for misformatted validations" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', <<-EOS
+controls: 
+  - type: Textbox
+    name: myscript
+    validations: abcdef
+EOS
+      setup_one 'missing', 'config/02-requirements.yml', ''
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', ''
+      
+      command "pub"
+      stdout.should =~ /invalid validations format for Textbox myscript/
+    end
+
+    it "checks for misformatted validations array" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', <<-EOS
+controls: 
+  - type: Textbox
+    name: myscript
+    validations: [abcdef, ghij]
+EOS
+      setup_one 'missing', 'config/02-requirements.yml', ''
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', ''
+
+      command "pub"
+      stdout.should =~ /invalid validations format for Textbox myscript/
+    end
+
+
+    it "checks for unknown validation type" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', <<-EOS
+controls: 
+  - type: Textbox
+    name: myscript
+    validations:
+      - popeye: olivia
+      - charm: ok
+EOS
+      setup_one 'missing', 'config/02-requirements.yml', ''
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', ''
+
+      command "pub"
+      stdout.should =~ /invalid validation type for Textbox myscript: popeye/
+    end
+
+    it "checks for missing options (Radio)" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: [{type: Radio, name: radio}]'
+      setup_one 'missing', 'config/02-requirements.yml', ''
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', ''
+      
+      command "pub"
+      stdout.should =~ /missing options for Radio control radio/
+    end
+
+    it "checks for misformatted options (Radio)" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: [{type: Radio, name: radio, options: abcdef}]'
+      setup_one 'missing', 'config/02-requirements.yml', ''
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', ''
+      
+      command "pub"
+      stdout.should =~ /invalid options format for Radio control radio/
+    end
+    
+    it "checks for misformatted options (Radio)" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: [{type: Radio, name: radio, options: [one, two]}]'
+      setup_one 'missing', 'config/02-requirements.yml', ''
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', ''
+      
+      command "pub"
+      stdout.should =~ /invalid options format for Radio control radio/
+    end
+
+    it "checks for missing options (Combobox)" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: [{type: Combobox, name: combobox}]'
+      setup_one 'missing', 'config/02-requirements.yml', ''
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', ''
+      
+      command "pub"
+      stdout.should =~ /missing options for Combobox control combobox/
+    end
+
+    it "checks for misformatted options (Combobox)" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: [{type: Combobox, name: combobox, options: abcdef}]'
+      setup_one 'missing', 'config/02-requirements.yml', ''
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', ''
+      
+      command "pub"
+      stdout.should =~ /invalid options format for Combobox control combobox/
+    end
+    
+    it "checks for misformatted options (Combobox)" do
+      setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
+      setup_one 'missing', 'config/01-controls.yml', 'controls: [{type: Combobox, name: combobox, options: [one, two]}]'
+      setup_one 'missing', 'config/02-requirements.yml', ''
+      setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"
+      setup_one 'missing', 'config/04-validations.yml', ''
+      
+      command "pub"
+      stdout.should =~ /invalid options format for Combobox control combobox/
+    end
 
     it "checks for missing type" do
       setup_one 'missing', 'script.yml', '{name: myscript, type: script}'

@@ -49,10 +49,12 @@ require "#{dir}/commands/list_command"
 require "#{dir}/commands/deploy_command"
 require "#{dir}/commands/dump_command"
 
+ActiveSupport::Deprecation.silenced = true
+
 module StackFu
-  VERSION = '0.1.5'
-  API = "http://beta.stackfu.com"
-  # API = "http://localhost:3000"
+  VERSION = '0.1.7'
+  # API = "https://beta.stackfu.com"
+  API = "http://localhost:3000"
   CONFIG_FILE = "#{ENV['HOME']}/.stackfu"
 
   include StackFu::OperatingSystems

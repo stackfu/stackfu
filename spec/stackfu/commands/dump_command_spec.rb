@@ -24,10 +24,19 @@ describe StackFu::Commands::DumpCommand do
   end
   
   context "valid script" do
+    before(:each) do
+      StackFu::Commands::DumpCommand.any_instance.tap do |cmd|
+        cmd.stubs(:mkdir)
+      end
+    end
+  
     it "creates a directory structure that describes the stack" do
       prepare :get, "/scripts/firewall.json", "/scripts/firewall.json"
 
-      StackFu::Commands::DumpCommand.any_instance.expects(:directory?).with("firewall").returns(false)
+      StackFu::Commands::DumpCommand.any_instance.tap do |cmd|
+        cmd.expects(:directory?).with("firewall").returns(false)
+        cmd.stubs(:write_file)
+      end
 
       command "dump firewall"
       stdout.should =~ /^\tcreate  firewall\//
@@ -42,6 +51,52 @@ describe StackFu::Commands::DumpCommand do
       stdout.should =~ /^\tcreate  firewall\/executables\/install_ufw.sh.erb/
       stdout.should =~ /^\tcreate  firewall\/executables\/configure_ufw.sh.erb/
       stdout.should =~ /^Success: Script firewall dumped/
+    end
+    
+    it "dumps required" do
+      prepare :get, "/scripts/pwned.json"
+
+      StackFu::Commands::DumpCommand.any_instance.tap do |cmd|
+        cmd.expects(:directory?).with("pwned").returns(false)
+        cmd.expects(:write_file).at_least_once.with() do |name, contents|
+          if name == 'pwned/config/01-controls.yml'
+            controls = YAML.load(contents)["controls"]
+            controls.each do |ctrl|
+              ctrl["required"].should == 'true'
+            end
+          end
+          true
+        end
+      end
+      
+      # TODO: check create file for controls
+
+      command "dump pwned"
+    end
+
+    it "dumps validations" do
+      prepare :get, "/scripts/pwned.json"
+
+      StackFu::Commands::DumpCommand.any_instance.tap do |cmd|
+        cmd.expects(:directory?).with("pwned").returns(false)
+        cmd.expects(:write_file).at_least_once.with() do |name, contents|
+          if name == 'pwned/config/01-controls.yml'
+            controls = YAML.load(contents)["controls"]
+            validations = controls.last["validations"]
+
+            validations.should_not be_nil
+            validations.size.should == 2
+
+            validations.find { |v| v.keys.first == "matches" }.values.first.should  == "^[A|B|C]$"
+            validations.find { |v| v.keys.first == "maxlength"}.values.first.should == "1"
+          end
+          true
+        end
+      end
+      
+      # TODO: check create file for controls
+
+      command "dump pwned"
     end
   end
 end

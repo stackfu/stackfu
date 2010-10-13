@@ -36,9 +36,23 @@ module StackFu::Commands
         
         if script.respond_to?(:controls)
           controls = map script.controls, "controls" do |c|
-            { "name"  => c.name,
-              "label" => c.label,
-              "type"  => c._type }
+            validations = {}
+            
+            if c.respond_to?(:validations) and !c.validations.empty?
+              validations = { 
+                "validations" => c.validations.map { |v| v.attributes.to_hash }
+              }
+            end
+            
+            required = 'false'
+            if c.respond_to?(:required)
+              required = c.required.to_s
+            end
+            
+            { "name"     => c.name,
+              "label"    => c.label,
+              "type"     => c._type,
+              "required" => required }.merge(validations)
           end
         else
           controls = []

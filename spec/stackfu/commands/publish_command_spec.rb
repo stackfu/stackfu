@@ -156,7 +156,6 @@ EOS
       stdout.should =~ /invalid validations format for Textbox myscript/
     end
 
-
     it "checks for unknown validation type" do
       setup_one 'missing', 'script.yml', '{name: myscript, type: script}'
       setup_one 'missing', 'config/01-controls.yml', <<-EOS
@@ -173,6 +172,7 @@ EOS
 
       command "pub"
       stdout.should =~ /invalid validation type for Textbox myscript: popeye/
+      stdout.should =~ /invalid validation type for Textbox myscript: charm/
     end
 
     it "checks for missing options (Radio)" do

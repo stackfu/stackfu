@@ -85,10 +85,18 @@ describe StackFu::Commands::DumpCommand do
             validations = controls.last["validations"]
 
             validations.should_not be_nil
-            validations.size.should == 2
+            validations.keys.size.should == 2
 
-            validations.find { |v| v.keys.first == "matches" }.values.first.should  == "^[A|B|C]$"
-            validations.find { |v| v.keys.first == "maxlength"}.values.first.should == "1"
+            validations["matches"].should  == "^[A|B|C]$"
+            validations["maxlength"].should == 1
+
+            validation_messages = controls.last["validation_messages"]
+
+            validation_messages.should_not be_nil
+            validation_messages.keys.size.should == 2
+
+            validation_messages["matches"].should   == "must be A, B or C"
+            validation_messages["maxlength"].should == "must have 1 or less characters"
           end
           true
         end

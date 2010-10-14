@@ -37,10 +37,17 @@ module StackFu::Commands
         if script.respond_to?(:controls)
           controls = map script.controls, "controls" do |c|
             validations = {}
+            validation_messages = {}
             
             if c.respond_to?(:validations) and !c.validations.empty?
               validations = { 
-                "validations" => c.validations.map { |v| v.attributes.to_hash }
+                "validations" => c.validations.attributes.to_hash
+              }
+            end
+            
+            if c.respond_to?(:validation_messages) and !c.validation_messages.empty?
+              validation_messages = { 
+                "validation_messages" => c.validation_messages.attributes.to_hash
               }
             end
             
@@ -52,7 +59,7 @@ module StackFu::Commands
             { "name"     => c.name,
               "label"    => c.label,
               "type"     => c._type,
-              "required" => required }.merge(validations)
+              "required" => required }.merge(validations).merge(validation_messages)
           end
         else
           controls = []

@@ -274,12 +274,9 @@ module StackFu::Commands
         return unless allows_validation?(item) and !(vals = item['validations']).nil?
         
         error = "invalid validations format for #{item["type"]} #{blue(item["name"])}"
-        raise CheckFailed, error unless vals.is_a?(Array)
+        raise CheckFailed, error unless vals.is_a?(Hash)
         
-        vals.each do |val|
-          raise CheckFailed, error unless val.is_a?(Hash)
-
-          type, value = val.keys.first, val.values.first
+        vals.each_pair do |type, value|
           message = "invalid validation type for #{item["type"]} #{blue(item["name"])}: #{red(type)}" 
           add_error message unless valid_validation?(type, value)
         end

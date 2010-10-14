@@ -163,8 +163,8 @@ controls:
   - type: Textbox
     name: myscript
     validations:
-      - popeye: olivia
-      - charm: ok
+      popeye: olivia
+      charm: ok
 EOS
       setup_one 'missing', 'config/02-requirements.yml', ''
       setup_one 'missing', 'config/03-executions.yml', "executions:\n- {file: x, description: y}"

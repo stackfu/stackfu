@@ -1,12 +1,12 @@
 HTTP/1.1 200 OK 
 X-Ua-Compatible: IE=Edge,chrome=1
-Etag: "f6f574c59b9ec3289fe86885b0b30ff5"
+Etag: "178597adbc4a0ad53d5f17fce7b06016"
 Connection: Keep-Alive
 Content-Type: application/json; charset=utf-8
-Date: Thu, 14 Oct 2010 20:41:23 GMT
+Date: Thu, 14 Oct 2010 21:34:02 GMT
 Server: WEBrick/1.3.1 (Ruby/1.8.7/2009-12-24)
-X-Runtime: 0.506700
-Content-Length: 902
+X-Runtime: 1.295549
+Content-Length: 984
 Cache-Control: max-age=0, private, must-revalidate
 
-{"controls":[{"required":true,"name":"grade","label":"Grade","_id":"4cb76a65d489e8ee82000034","_type":"Textbox","validations":{"maxlength":1,"matches":"^[A|B|C]$"},"validation_messages":{"maxlength":"must have 1 or less characters","matches":"must be A, B or C"}}],"name":"pwned","slug":"pwned","created_at":"2010-10-14T20:39:01Z","deploy_count":0,"updated_at":"2010-10-14T20:39:01Z","_id":"4cb76a65d489e8ee82000036","tags":["tag1","tag2"],"watching_users_count":1,"tags_as_string":"tag1 tag2","user_id":"4c8585167d7c425923000003","executions":[{"body":"# \n# mydear.sh\n# Thu Oct 14 11:08:19 -0300 2010\n#\n\n# TODO: Replace the contents of this file with \"Mydear\"\necho [<%= Time.now %>] Installing -- Mydear\n","_id":"4cb76a65d489e8ee82000035","_type":"Executable","file":"mydear","description":"Mydear"}],"description":"Add your description here","watching_user_ids":["4c8585167d7c425923000003"]}
+{"controls":[{"required":true,"name":"grade","label":"Grade","_id":"4cb776acd489e8ee82000045","_type":"Textbox","validations":{"maxlength":1,"matches":"^[A|B|C]$"},"validation_messages":{"maxlength":"must have 1 or less characters!","matches":"must be A, B or C"}},{"required":false,"name":"school","label":"School","_id":"4cb776acd489e8ee82000046","_type":"Radio","options":[[1,"one"]]}],"name":"pwned","slug":"pwned","created_at":"2010-10-14T21:31:24Z","deploy_count":0,"updated_at":"2010-10-14T21:31:24Z","_id":"4cb776acd489e8ee82000048","tags":[],"watching_users_count":1,"user_id":"4c8585167d7c425923000003","executions":[{"body":"# \n# mydear.sh\n# Thu Oct 14 11:08:19 -0300 2010\n#\n\n# TODO: Replace the contents of this file with \"Mydear\"\necho [<%= Time.now %>] Installing -- Mydear\n","_id":"4cb776acd489e8ee82000047","_type":"Executable","file":"mydear","description":"Mydear"}],"description":"Add your description here","watching_user_ids":["4c8585167d7c425923000003"]}

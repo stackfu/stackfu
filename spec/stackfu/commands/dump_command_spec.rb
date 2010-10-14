@@ -61,9 +61,9 @@ describe StackFu::Commands::DumpCommand do
         cmd.expects(:write_file).at_least_once.with() do |name, contents|
           if name == 'pwned/config/01-controls.yml'
             controls = YAML.load(contents)["controls"]
-            controls.each do |ctrl|
-              ctrl["required"].should == 'true'
-            end
+
+            grade_ctrl = controls.select { |c| c['name'] == 'grade' }.first
+            grade_ctrl["required"].should == 'true'
           end
           true
         end
@@ -82,21 +82,26 @@ describe StackFu::Commands::DumpCommand do
         cmd.expects(:write_file).at_least_once.with() do |name, contents|
           if name == 'pwned/config/01-controls.yml'
             controls = YAML.load(contents)["controls"]
-            validations = controls.last["validations"]
-
+            
+            options = controls.select { |c| c['name'] == 'school' }.first["options"]
+            options.should_not be_nil
+            
+            grade_ctrl = controls.select { |c| c['name'] == 'grade' }.first
+            
+            validations = grade_ctrl["validations"]
             validations.should_not be_nil
             validations.keys.size.should == 2
 
             validations["matches"].should  == "^[A|B|C]$"
             validations["maxlength"].should == 1
 
-            validation_messages = controls.last["validation_messages"]
+            validation_messages = grade_ctrl["validation_messages"]
 
             validation_messages.should_not be_nil
             validation_messages.keys.size.should == 2
 
             validation_messages["matches"].should   == "must be A, B or C"
-            validation_messages["maxlength"].should == "must have 1 or less characters"
+            validation_messages["maxlength"].should == "must have 1 or less characters!"
           end
           true
         end

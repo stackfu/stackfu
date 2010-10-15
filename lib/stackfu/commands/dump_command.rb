@@ -12,7 +12,13 @@ module StackFu::Commands
       
       script = spinner { 
         begin
-          Script.find(script_name) 
+          if script_name.include?('/')
+            user_name, script_name = script_name.split('/')
+            user = User.new(:id => user_name)
+            Script.new(user.get(script_name))
+          else
+            Script.find(script_name)
+          end
         rescue ActiveResource::ResourceNotFound 
         end
       }

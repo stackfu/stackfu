@@ -52,7 +52,7 @@ require "#{dir}/commands/dump_command"
 ActiveSupport::Deprecation.silenced = true
 
 module StackFu
-  VERSION = '0.1.7'
+  VERSION = '0.1.8'
   API = ENV['STACKFU_ENV'] == 'development' ? "http://localhost:3000" : "https://beta.stackfu.com"
   CONFIG_FILE = "#{ENV['HOME']}/.stackfu"
 

@@ -4,6 +4,7 @@ module StackFu::Commands
 
     def default(parameters, options)
       script_name = parameters[0]
+      user_name = ''
       
       unless script_name
         puts "You have to tell which script you want to dump."
@@ -15,6 +16,7 @@ module StackFu::Commands
           if script_name.include?('/')
             user_name, script_name = script_name.split('/')
             user = User.new(:id => user_name)
+            user_name = "#{user_name}/"
             Script.new(user.get(script_name))
           else
             Script.find(script_name)
@@ -35,7 +37,8 @@ module StackFu::Commands
         create_file "#{script_name}/script.yml", {
           "type" => "script",
           "name" => script.name,
-          "description" => script.respond_to?(:description) ? script.description : ""
+          "description" => script.respond_to?(:description) ? script.description : "",
+          "tags" => script.respond_to?(:tags) ? script.tags : ""
         }.to_yaml
         
         create_folder "#{script_name}/config"
@@ -116,9 +119,9 @@ module StackFu::Commands
           create_file "#{script_name}/executables/#{script.description.downcase.gsub(" ", "_")}.sh.erb", script.body
         end
         
-        done "Script #{script_name} dumped."
+        done "Script #{user_name}#{script_name} dumped."
       else
-        error "Script '#{script_name}' was not found"
+        error "Script '#{user_name}#{script_name}' was not found"
       end
     end
     

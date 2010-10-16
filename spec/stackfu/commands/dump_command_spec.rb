@@ -53,6 +53,36 @@ describe StackFu::Commands::DumpCommand do
       stdout.should =~ /^Success: Script firewall dumped/
     end
     
+    it "dumps another user's script when using user/script" do
+      prepare :get, "/users/fcoury/firewall.json", "/scripts/firewall.json"
+
+      StackFu::Commands::DumpCommand.any_instance.tap do |cmd|
+        cmd.expects(:directory?).with("firewall").returns(false)
+        cmd.stubs(:write_file)
+      end
+
+      command "dump fcoury/firewall"
+      stdout.should =~ /^\tcreate  firewall\//
+      stdout.should =~ /^\tcreate  firewall\/script.yml/
+      stdout.should =~ /^\tcreate  firewall\/config\//
+      stdout.should =~ /^\tcreate  firewall\/config\/01-controls.yml/
+      stdout.should =~ /^\tcreate  firewall\/config\/02-requirements.yml/
+      stdout.should =~ /^\tcreate  firewall\/config\/03-executions.yml/
+      stdout.should =~ /^\tcreate  firewall\/config\/04-validations.yml/
+      stdout.should =~ /^\tcreate  firewall\/executables\//
+      stdout.should =~ /^\tcreate  firewall\/executables\//
+      stdout.should =~ /^\tcreate  firewall\/executables\/install_ufw.sh.erb/
+      stdout.should =~ /^\tcreate  firewall\/executables\/configure_ufw.sh.erb/
+      stdout.should =~ /^Success: Script fcoury\/firewall dumped/
+    end
+    
+    it "reports script not found" do
+      prepare :get, "/users/fcoury/firewall.json", "/scripts/script_not_found.json"
+      
+      command "dump fcoury/firewall"
+      stdout.should =~ /Script 'fcoury\/firewall' was not found/
+    end
+    
     it "dumps required" do
       prepare :get, "/scripts/pwned.json"
 
@@ -64,6 +94,25 @@ describe StackFu::Commands::DumpCommand do
 
             grade_ctrl = controls.select { |c| c['name'] == 'grade' }.first
             grade_ctrl["required"].should == 'true'
+          end
+          true
+        end
+      end
+      
+      # TODO: check create file for controls
+
+      command "dump pwned"
+    end
+    
+    it "dumps tags" do
+      prepare :get, "/scripts/pwned.json"
+
+      StackFu::Commands::DumpCommand.any_instance.tap do |cmd|
+        cmd.expects(:directory?).with("pwned").returns(false)
+        cmd.expects(:write_file).at_least_once.with() do |name, contents|
+          if name == 'pwned/script.yml'
+            controls = YAML.load(contents)
+            controls['tags'].should == ['one', 'two']
           end
           true
         end

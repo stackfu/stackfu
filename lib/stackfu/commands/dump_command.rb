@@ -1,6 +1,7 @@
 module StackFu::Commands
   class DumpCommand < Command
     include StackFu::ApiHooks
+    aliases :clone
 
     def default(parameters, options)
       script_name = parameters[0]

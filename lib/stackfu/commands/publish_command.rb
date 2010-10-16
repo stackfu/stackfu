@@ -3,7 +3,7 @@ module StackFu::Commands
 
   class PublishCommand < Command
     include StackFu::ApiHooks
-    aliases :pub
+    aliases :pub, :push
     
     def stack?
       File.exists?("stack.yml")

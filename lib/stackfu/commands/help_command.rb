@@ -23,7 +23,7 @@ module StackFu::Commands
       puts "    #{"publish".foreground(:cyan)}                      publishes the item on the current folder to StackFu.com"
       puts "" 
       puts "  For a complete guide on using StackFu from command line:"
-      puts "    #{"http://stackfu.com/guides/stackfu-cli".underline}"
+      puts "    #{"http://docs.stackfu.com/usage/".underline}"
     end
   end
 end

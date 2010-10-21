@@ -1,5 +1,0 @@
---- 
-name: stackfu-install
-operating_system: ubuntu_904
-type: stack
-description: Configures and deploy stackfu API server

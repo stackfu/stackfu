@@ -1,3 +1,4 @@
+#### Ruby 1.9 needs the encoding magic field in order to work.
 # encoding: utf-8
 require 'rubygems'
 

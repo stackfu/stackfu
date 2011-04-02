@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'rubygems'
 
 $:.unshift(File.dirname(__FILE__)) unless
